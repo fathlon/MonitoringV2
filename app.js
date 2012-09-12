@@ -38,53 +38,78 @@ app.configure('development', function(){
 // 			});
 // });
 
-app.get('/', function(req, res1) {
+app.get('/', function(req, res) {
 	async.waterfall([
 		function(callback) {
-			var options = { host: 'localhost', port: '3001', path: '/server/jenkins' };
-			http.get(options, function(res) {
-				console.log('STATUS: ' + res.statusCode);
-					
-			    var contentString = '';
-				res.on('data', function(chunk){
-				    contentString += chunk;
-				});
-		
-				res.on('end', function(){
-					var jobs = JSON.parse(contentString).jobs;
-					callback(null, jobs);
-				});	
-				
-			}).on('error', function(e) {
-				console.log('ERROR: ' + e.message);
-				callback(e, 'Error occur while retrieving feed.');
-			});
+			
+			getFeed('/server/jenkins', 'jenkins', callback);
+			// var options = { host: 'localhost', port: '3001', path: '/server/jenkins' };
+			// 			http.get(options, function(res) {
+			// 				console.log('STATUS: ' + res.statusCode);
+			// 					
+			// 			    var contentString = '';
+			// 				res.on('data', function(chunk){
+			// 				    contentString += chunk;
+			// 				});
+			// 		
+			// 				res.on('end', function(){
+			// 					var jobs = JSON.parse(contentString).jobs;
+			// 					callback(null, jobs);
+			// 				});	
+			// 				
+			// 			}).on('error', function(e) {
+			// 				console.log('ERROR: ' + e.message);
+			// 				callback(e, 'Error occur while retrieving feed.');
+			// 			});
 		}
 	],
 	
 	function(err, data) {
 		console.log('Got error - '+err);
-
-		res1.render('index', {
-			title: 'Jenkins result',
-			jobs: data
-		});
+		
+		if(data != undefined) {
+			res.render('index', {
+				title: 'Jenkins result',
+				jobs: data
+			});
+		} else {
+			res.send(err);
+		}
 	});
 });
 
-db.on('load', function() {
-	
-	preload_sample(db);
-	
-	db.forEach(function(key, val) {
-	    console.log('Found key: %s, val: %j', key, val);
-	  });
-	console.log('Monitored jobs loaded.');
-});
+function getFeed(path, server, callback) {
+	var options = { host: 'localhost', port: '3001', path: path };
+	http.get(options, function(res) {
+	    var contentString = '';
+		res.on('data', function(chunk){
+		    contentString += chunk;
+		});
 
-db.on('drain', function() {
-	console.log('Data saved to disk');
-});
+		res.on('end', function(){
+			callback(null, JSON.parse(contentString).jobs);
+		});	
+		
+	}).on('error', function(e) {
+		var errorMsg = 'Error retrieving feed from ' + server + ': ' + e.message;
+		console.log(errorMsg);
+		callback(errorMsg);
+	});
+}
+
+// db.on('load', function() {
+// 	
+// 	preload_sample(db);
+// 	
+// 	db.forEach(function(key, val) {
+// 	    console.log('Found key: %s, val: %j', key, val);
+// 	  });
+// 	console.log('Monitored jobs loaded.');
+// });
+
+// db.on('drain', function() {
+// 	console.log('Data saved to disk');
+// });
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
