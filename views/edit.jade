@@ -1,0 +1,9 @@
+extends layout
+
+block content
+	form(action='/', method='get')
+		input(type='submit', value='Submit')
+		each job in jobs
+			p
+				input(type='checkbox', value=job.name) 
+				| #{job.name}

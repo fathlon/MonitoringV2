@@ -40,27 +40,8 @@ app.configure('development', function(){
 
 app.get('/', function(req, res) {
 	async.waterfall([
-		function(callback) {
-			
+		function(callback) {			
 			getFeed('/server/jenkins', 'jenkins', callback);
-			// var options = { host: 'localhost', port: '3001', path: '/server/jenkins' };
-			// 			http.get(options, function(res) {
-			// 				console.log('STATUS: ' + res.statusCode);
-			// 					
-			// 			    var contentString = '';
-			// 				res.on('data', function(chunk){
-			// 				    contentString += chunk;
-			// 				});
-			// 		
-			// 				res.on('end', function(){
-			// 					var jobs = JSON.parse(contentString).jobs;
-			// 					callback(null, jobs);
-			// 				});	
-			// 				
-			// 			}).on('error', function(e) {
-			// 				console.log('ERROR: ' + e.message);
-			// 				callback(e, 'Error occur while retrieving feed.');
-			// 			});
 		}
 	],
 	
@@ -70,6 +51,27 @@ app.get('/', function(req, res) {
 		if(data != undefined) {
 			res.render('index', {
 				title: 'Jenkins result',
+				jobs: data
+			});
+		} else {
+			res.send(err);
+		}
+	});
+});
+
+app.get('/edit', function(req, res){
+	async.waterfall([
+		function(callback) {			
+			getFeed('/server/jenkins', 'jenkins', callback);
+		}
+	],
+	
+	function(err, data) {
+		console.log('Got error - '+err);
+		
+		if(data != undefined) {
+			res.render('edit', {
+				title: 'Jobs to monitor',
 				jobs: data
 			});
 		} else {
