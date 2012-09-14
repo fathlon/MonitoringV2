@@ -41,7 +41,8 @@ app.configure('development', function(){
 app.get('/', function(req, res) {
 	async.waterfall([
 		function(callback) {			
-			getFeed('/server/jenkins', 'jenkins', callback);
+			//getFeed('/server/jenkins', 'jenkins', callback);
+			getFeed('/api/json', 'jenkins', callback);
 		}
 	],
 	
@@ -62,7 +63,8 @@ app.get('/', function(req, res) {
 app.get('/edit', function(req, res){
 	async.waterfall([
 		function(callback) {			
-			getFeed('/server/jenkins', 'jenkins', callback);
+			//getFeed('/server/jenkins', 'jenkins', callback);
+			getFeed('/api/json', 'jenkins', callback);
 		}
 	],
 	
@@ -80,8 +82,15 @@ app.get('/edit', function(req, res){
 	});
 });
 
+app.get('/save', function(req, res){
+	console.log(req.param('jobList'));
+    res.send('completed');
+});
+
+
 function getFeed(path, server, callback) {
-	var options = { host: 'localhost', port: '3001', path: path };
+	//var options = { host: 'localhost', port: '3001', path: path };
+	var options = { host: 'jenkins.wdstechnology.com', path: path };
 	http.get(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
@@ -112,6 +121,11 @@ function getFeed(path, server, callback) {
 // db.on('drain', function() {
 // 	console.log('Data saved to disk');
 // });
+
+app.use(function(err, req, res, next){
+  console.error(err.stack);
+  res.send(500, 'Something broke!');
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
