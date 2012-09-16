@@ -1,9 +1,9 @@
 extends layout
 
 block content
-    form(action='/save', method='get')
-        input(type='submit', value='Submit')
-        each job in jobs
-            p
-                input(type='checkbox', name='jobList', value=job.name) 
-                | #{job.name}
+  form(action='/save', method='get')
+    input(type='submit', value='Submit')
+    each job in jobs
+      p
+        input(type='checkbox', name='jobs', value=job.name) 
+        | #{job.name}

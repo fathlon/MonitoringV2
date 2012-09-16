@@ -30,6 +30,12 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+db.on('load', function() {
+	http.createServer(app).listen(app.get('port'), function(){
+	  console.log("Express server listening on port " + app.get('port'));
+	});
+});
+
 //app.get('/', routes.index);
 
 // app.get('/', function(req, res) {
@@ -39,20 +45,30 @@ app.configure('development', function(){
 // });
 
 app.get('/', function(req, res) {
-	async.waterfall([
-		function(callback) {			
-			//getFeed('/server/jenkins', 'jenkins', callback);
-			getFeed('/api/json', 'jenkins', callback);
+	async.parallel({
+		jenkins: function(callback) {			
+			getFeed('/server/jenkins', 'jenkins', callback);
+			// getFeed('/api/json', 'jenkins', callback);
+		},
+		virgon: function(callback) {			
+			getFeed('/server/virgon', 'virgon', callback);
+			// getFeed('/api/json', 'virgon', callback);
 		}
-	],
-	
-	function(err, data) {
-		console.log('Got error - '+err);
+		// ,
+		// 		winbob: function(callback) {			
+		// 			getFeed('/server/bobme', 'winbob', callback);
+		// 			// getFeed('/api/json', 'virgon', callback);
+		// 		}
 		
-		if(data != undefined) {
+	},
+	function(err, results) {
+		console.log('Got error - '+err);
+		console.log('Results - '+results);
+		
+		if(err == null) {
 			res.render('index', {
-				title: 'Jenkins result',
-				jobs: data
+				title: 'Monitoring Results',
+				servers: results
 			});
 		} else {
 			res.send(err);
@@ -60,11 +76,18 @@ app.get('/', function(req, res) {
 	});
 });
 
+app.get('/list', function(req, res) {
+	res.render('list', {
+		title: 'Monitored Jobs',
+		jobs: retrieveDBJobs()
+	});
+});
+
 app.get('/edit', function(req, res){
 	async.waterfall([
 		function(callback) {			
-			//getFeed('/server/jenkins', 'jenkins', callback);
-			getFeed('/api/json', 'jenkins', callback);
+			getFeed('/server/jenkins', 'jenkins', callback);
+			// getFeed('/api/json', 'jenkins', callback);
 		}
 	],
 	
@@ -73,7 +96,7 @@ app.get('/edit', function(req, res){
 		
 		if(data != undefined) {
 			res.render('edit', {
-				title: 'Jobs to monitor',
+				title: 'Add Jobs',
 				jobs: data
 			});
 		} else {
@@ -83,14 +106,26 @@ app.get('/edit', function(req, res){
 });
 
 app.get('/save', function(req, res){
-	console.log(req.param('jobList'));
-    res.send('completed');
+	console.log(req.param('jobs'));
+	var jobs = req.param('jobs');
+	// for (var i = 0, len = jobs.length; i < len; i++) {
+	// 		db.set(jobs[i], jobs[i]);
+	// 	}
+	
+	jobs.forEach(function(job){
+		db.set(job, job);
+	});
+	
+	db.on('drain', function(){
+		res.redirect('/');
+	});
+    
 });
 
 
 function getFeed(path, server, callback) {
-	//var options = { host: 'localhost', port: '3001', path: path };
-	var options = { host: 'jenkins.wdstechnology.com', path: path };
+	var options = { host: 'localhost', port: '3001', path: path };
+	// var options = { host: 'jenkins.wdstechnology.com', path: path };
 	http.get(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
@@ -108,32 +143,27 @@ function getFeed(path, server, callback) {
 	});
 }
 
+function retrieveDBJobs() {
+	var monitoredJobs = [];
+	db.forEach(function(key, val) {
+		if(val != undefined) {
+			monitoredJobs.push(key);
+		}
+	});
+	return monitoredJobs;
+}
+
 // db.on('load', function() {
 // 	
-// 	preload_sample(db);
-// 	
 // 	db.forEach(function(key, val) {
-// 	    console.log('Found key: %s, val: %j', key, val);
-// 	  });
-// 	console.log('Monitored jobs loaded.');
+// 		    console.log('Found key: %s, val: %j', key, val);
+// 		  });
+// 
+// 		db.on('drain', function(){
+// 		console.log('Monitored jobs loaded.');			
+// 		});
 // });
 
 // db.on('drain', function() {
 // 	console.log('Data saved to disk');
 // });
-
-app.use(function(err, req, res, next){
-  console.error(err.stack);
-  res.send(500, 'Something broke!');
-});
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
-});
-
-function preload_sample(db) {
-	db.set('ust', 'ust');
-	db.set('jasmine', 'jasmine');
-	db.set('hub', 'hub');
-	db.set('bluepool', 'bluepool');
-}
