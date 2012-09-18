@@ -38,12 +38,6 @@ db.on('load', function() {
 
 //app.get('/', routes.index);
 
-// app.get('/', function(req, res) {
-// 	res.render('index', {
-// 				title: 'Why do I need this?'
-// 			});
-// });
-
 app.get('/', function(req, res) {
 	async.parallel({
 		jenkins: function(callback) {			
@@ -105,8 +99,15 @@ app.get('/edit', function(req, res){
 	});
 });
 
+app.get('/delete/:jobName', function(req, res){
+	db.rm(req.params.jobName, null);
+	
+	db.on('drain', function(){
+		res.redirect('/');
+	});
+});
+
 app.get('/save', function(req, res){
-	console.log(req.param('jobs'));
 	var jobs = req.param('jobs');
 	// for (var i = 0, len = jobs.length; i < len; i++) {
 	// 		db.set(jobs[i], jobs[i]);
@@ -119,7 +120,6 @@ app.get('/save', function(req, res){
 	db.on('drain', function(){
 		res.redirect('/');
 	});
-    
 });
 
 
@@ -152,18 +152,3 @@ function retrieveDBJobs() {
 	});
 	return monitoredJobs;
 }
-
-// db.on('load', function() {
-// 	
-// 	db.forEach(function(key, val) {
-// 		    console.log('Found key: %s, val: %j', key, val);
-// 		  });
-// 
-// 		db.on('drain', function(){
-// 		console.log('Monitored jobs loaded.');			
-// 		});
-// });
-
-// db.on('drain', function() {
-// 	console.log('Data saved to disk');
-// });
