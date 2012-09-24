@@ -9,31 +9,43 @@ var express = require('express'),
 	path = require('path'),
 	async = require('async');
 	
-var db = require('dirty')('db/data.db');
+// var db = require('dirty')('db/data.db');
+
+// var db = require('alfred');
+// db.open('db', function(err, db) {
+// 	if (err) { throw err; }
+// 	
+// 	db.ensure ('jobs', function(err, users_key_map) {
+// 		if (err) { throw err; }
+// 	});
+// });
 
 var app = express();
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(require('stylus').middleware(__dirname + '/public'));
-  app.use(express.static(path.join(__dirname, 'public')));
+	app.set('port', process.env.PORT || 3000);
+	app.set('views', __dirname + '/views');
+	app.set('view engine', 'jade');
+	app.use(express.favicon());
+	app.use(express.logger('dev'));
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+	app.use(app.router);
+	app.use(require('stylus').middleware(__dirname + '/public'));
+	app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function(){
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 });
 
-db.on('load', function() {
+var nStore = require('nstore');
+nStore = nStore.extend(require('nstore/query')());
+
+var db = nStore.new('db/data.db', function(){
 	http.createServer(app).listen(app.get('port'), function(){
-	  console.log("Express server listening on port " + app.get('port'));
-	});
+		console.log("Express server listening on port " + app.get('port'));
+	});	
 });
 
 //app.get('/', routes.index);
@@ -55,10 +67,7 @@ app.get('/', function(req, res) {
 		// 		}
 		
 	},
-	function(err, results) {
-		console.log('Got error - '+err);
-		console.log('Results - '+results);
-		
+	function(err, results) {	
 		if(err == null) {
 			res.render('index', {
 				title: 'Monitoring Results',
@@ -71,9 +80,11 @@ app.get('/', function(req, res) {
 });
 
 app.get('/list', function(req, res) {
-	res.render('list', {
-		title: 'Monitored Jobs',
-		jobs: retrieveDBJobs()
+	retrieveDBJobs(function(jobs) {
+		res.render('list', {
+			title: 'Monitored Jobs',
+			jobs: jobs
+		});
 	});
 });
 
@@ -85,41 +96,42 @@ app.get('/edit', function(req, res){
 		}
 	],
 	
-	function(err, data) {
-		console.log('Got error - '+err);
-		
-		if(data != undefined) {
-			res.render('edit', {
-				title: 'Add Jobs',
-				jobs: data
-			});
-		} else {
-			res.send(err);
-		}
+	function(err, data) {	
+		if (err) { res.send(500, { error: err }); }	
+
+		res.render('edit', {
+			title: 'Add Jobs',
+			jobs: data
+		});
 	});
 });
 
 app.get('/delete/:jobName', function(req, res){
-	db.rm(req.params.jobName, null);
-	
-	db.on('drain', function(){
-		res.redirect('/');
+	db.remove(req.params.jobName, function(err) {
+		if (err) { res.send(500, { error: err }); } 
+		res.send(200);
 	});
 });
 
 app.get('/save', function(req, res){
 	var jobs = req.param('jobs');
-	// for (var i = 0, len = jobs.length; i < len; i++) {
-	// 		db.set(jobs[i], jobs[i]);
-	// 	}
+	var server = req.param('server');
+
+	if(jobs != undefined) {
+		// for (var i = 0, len = jobs.length; i < len; i++) {		
+		// }
 	
-	jobs.forEach(function(job){
-		db.set(job, job);
-	});
+		jobs.forEach(function(job){
+			db.save(job, {name: job, server: server}, function(err) {
+				if(err) { throw err; }
+			});
+		});	
 	
-	db.on('drain', function(){
-		res.redirect('/');
-	});
+		res.redirect('/list');
+	} else {
+		res.redirect('/edit');
+	}
+	
 });
 
 
@@ -143,12 +155,15 @@ function getFeed(path, server, callback) {
 	});
 }
 
-function retrieveDBJobs() {
+function retrieveDBJobs(callback) {
 	var monitoredJobs = [];
-	db.forEach(function(key, val) {
-		if(val != undefined) {
+	db.all(function(err, results) {
+		if(err) { throw err; }
+
+		for (var key in results) {
 			monitoredJobs.push(key);
-		}
+		 }
+		
+		callback(monitoredJobs);
 	});
-	return monitoredJobs;
 }

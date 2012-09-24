@@ -2,8 +2,11 @@ extends layout
 
 block content
   form(action='/save', method='get')
+    select(name='server')
+      option(value='jenkins') jenkins
+      option(value='virgon') virgon
     input(type='submit', value='Submit')
     each job in jobs
       p
-        input(type='checkbox', name='jobs', value=job.name) 
+        input(type='checkbox', name='jobs[]', value=job.name) 
         | #{job.name}
