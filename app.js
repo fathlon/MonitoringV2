@@ -53,18 +53,21 @@ var db = nStore.new('db/data.db', function(){
 app.get('/', function(req, res) {
 	async.parallel({
 		jenkins: function(callback) {			
-			getFeed('/server/jenkins', 'jenkins', callback);
-			// getFeed('/api/json', 'jenkins', callback);
+			getFeed('/server/jenkins', 'localhost', '3001', 'jen', callback);
+			// getFeed('/api/json', 'http://jenkins.wdstechnology.com', callback);
 		},
 		virgon: function(callback) {			
-			getFeed('/server/virgon', 'virgon', callback);
-			// getFeed('/api/json', 'virgon', callback);
+			getFeed('/server/virgon', 'localhost', '3001', 'jen', callback);
+			// getFeed('/api/json', 'http://virgon.wdstechnology.com', callback);
+		},
+		winbob: function(callback) {			
+			getFeed('/server/winbob', 'localhost', '3001', 'cc', callback);
+			// getFeed('/cruisecontrol/json.jsp', 'http://linbob.wdstechnology.com', callback);
+		},
+		linbob: function(callback) {
+			getFeed('/server/linbob', 'localhost', '3001', 'cc', callback);
+			// getFeed('/cruisecontrol/json.jsp', 'http://linbob.wdstechnology.com', '7070', callback);
 		}
-		// ,
-		// 		winbob: function(callback) {			
-		// 			getFeed('/server/bobme', 'winbob', callback);
-		// 			// getFeed('/api/json', 'virgon', callback);
-		// 		}
 		
 	},
 	function(err, results) {	
@@ -134,10 +137,14 @@ app.get('/save', function(req, res){
 	
 });
 
+app.get('/test', function(req, res) {
+	findByServer('jenkins', null);
+	res.send(200);
+});
 
-function getFeed(path, server, callback) {
-	var options = { host: 'localhost', port: '3001', path: path };
-	// var options = { host: 'jenkins.wdstechnology.com', path: path };
+
+function getFeed(path, server, port, type, callback) {
+	var options = { host: server, port: port, path: path };
 	http.get(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
@@ -145,13 +152,31 @@ function getFeed(path, server, callback) {
 		});
 
 		res.on('end', function(){
-			callback(null, JSON.parse(contentString).jobs);
+			var jobFeed = JSON.parse(contentString);
+
+			if(type == 'cc') {
+				jobFeed = jobFeed.projects;
+			} else {
+				jobFeed = jobFeed.jobs;
+			}
+			
+			callback(null, jobFeed);
 		});	
 		
 	}).on('error', function(e) {
 		var errorMsg = 'Error retrieving feed from ' + server + ': ' + e.message;
 		console.log(errorMsg);
 		callback(errorMsg);
+	});
+}
+
+function findByServer(serverName, callback) {
+	db.find({server: serverName}, function(err, results) {
+		if(err) { throw err; }
+
+		for (var key in results) {
+			console.log(key);
+		}
 	});
 }
 
