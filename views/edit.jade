@@ -2,11 +2,14 @@ extends layout
 
 block content
   form(action='/save', method='get')
-    select(name='server')
-      option(value='jenkins') jenkins
-      option(value='virgon') virgon
+    select(name='server', id='server', onchange='retrieveJobs()')
+      option(value='jenkins') Jenkins
+      option(value='virgon') Virgon
+      option(value='winbob') Winbob
+      option(value='linbob') Linbob
+
+
     input(type='submit', value='Submit')
-    each job in jobs
-      p
-        input(type='checkbox', name='jobs[]', value=job.name) 
-        | #{job.name}
+
+    #jobContent
+      include includes/job_selections.jade

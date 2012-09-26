@@ -7,18 +7,20 @@ var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
 	path = require('path'),
-	async = require('async');
-	
-// var db = require('dirty')('db/data.db');
+	async = require('async');	
 
-// var db = require('alfred');
-// db.open('db', function(err, db) {
-// 	if (err) { throw err; }
-// 	
-// 	db.ensure ('jobs', function(err, users_key_map) {
-// 		if (err) { throw err; }
-// 	});
-// });
+
+/**
+ * DB setup
+ */
+
+var nStore = require('nstore');
+nStore = nStore.extend(require('nstore/query')());
+
+	
+/**
+ * Server setup
+ */
 
 var app = express();
 
@@ -39,34 +41,47 @@ app.configure('development', function(){
 	app.use(express.errorHandler());
 });
 
-var nStore = require('nstore');
-nStore = nStore.extend(require('nstore/query')());
-
 var db = nStore.new('db/data.db', function(){
 	http.createServer(app).listen(app.get('port'), function(){
 		console.log("Express server listening on port " + app.get('port'));
 	});	
 });
 
+
+/**
+ * Variables
+ */
+var serverMap = {};
+serverMap['jenkins'] = {path: '/server/jenkins', server: 'localhost', port: '3001', type: 'jenkins'};
+serverMap['virgon'] = {path: '/server/virgon', server: 'localhost', port: '3001', type: 'jenkins'};
+serverMap['winbob'] = {path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
+serverMap['linbob'] = {path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
+/*
+serverMap['jenkins'] = {path: '/api/json', server: 'http://jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
+serverMap['virgon'] = {path: '/api/json', server: 'http://virgon.wdstechnology.com', port:'80', type: 'jenkins'};
+serverMap['winbob'] = {path: '/cruisecontrol/json.jsp', server: 'http://winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
+serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'http://linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
+*/
+
+/**
+ * Routing
+ */
+
 //app.get('/', routes.index);
 
 app.get('/', function(req, res) {
 	async.parallel({
 		jenkins: function(callback) {			
-			getFeed('/server/jenkins', 'localhost', '3001', 'jen', callback);
-			// getFeed('/api/json', 'http://jenkins.wdstechnology.com', callback);
+			getFeed('jenkins', callback);
 		},
 		virgon: function(callback) {			
-			getFeed('/server/virgon', 'localhost', '3001', 'jen', callback);
-			// getFeed('/api/json', 'http://virgon.wdstechnology.com', callback);
+			getFeed('virgon', callback);
 		},
 		winbob: function(callback) {			
-			getFeed('/server/winbob', 'localhost', '3001', 'cc', callback);
-			// getFeed('/cruisecontrol/json.jsp', 'http://linbob.wdstechnology.com', callback);
+			getFeed('winbob', callback);
 		},
 		linbob: function(callback) {
-			getFeed('/server/linbob', 'localhost', '3001', 'cc', callback);
-			// getFeed('/cruisecontrol/json.jsp', 'http://linbob.wdstechnology.com', '7070', callback);
+			getFeed('linbob', callback);
 		}
 		
 	},
@@ -91,11 +106,21 @@ app.get('/list', function(req, res) {
 	});
 });
 
+app.get('/get/:serverName', function(req, res){
+	getFeed(req.params.serverName, function(err, data) {
+		if(err) { res.send(500, { error: err }); } 
+		
+		res.status(200);
+		res.render('includes/job_selections', {
+			jobs: data
+		});
+	});
+});
+
 app.get('/edit', function(req, res){
 	async.waterfall([
 		function(callback) {			
-			getFeed('/server/jenkins', 'jenkins', callback);
-			// getFeed('/api/json', 'jenkins', callback);
+			getFeed('jenkins', callback);
 		}
 	],
 	
@@ -143,8 +168,14 @@ app.get('/test', function(req, res) {
 });
 
 
-function getFeed(path, server, port, type, callback) {
-	var options = { host: server, port: port, path: path };
+/**
+ * Functions
+ */
+
+function getFeed(serverName, callback) {
+	var server = serverMap[serverName];
+	
+	var options = { host: server.server, port: server.port, path: server.path };
 	http.get(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
@@ -154,7 +185,7 @@ function getFeed(path, server, port, type, callback) {
 		res.on('end', function(){
 			var jobFeed = JSON.parse(contentString);
 
-			if(type == 'cc') {
+			if(server.type == 'cruisecontrol') {
 				jobFeed = jobFeed.projects;
 			} else {
 				jobFeed = jobFeed.jobs;
