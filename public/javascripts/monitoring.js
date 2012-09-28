@@ -15,7 +15,7 @@ function removeJob(job) {
 			alert(err);
 		},
 		success: function(data) {
-			alert('i succeed');
+            $('#jobList').html('/list #jobList');
 		}
 	});
 }

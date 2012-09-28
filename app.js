@@ -52,16 +52,19 @@ var db = nStore.new('db/data.db', function(){
  * Variables
  */
 var serverMap = {};
+/*
 serverMap['jenkins'] = {path: '/server/jenkins', server: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['virgon'] = {path: '/server/virgon', server: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['winbob'] = {path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 serverMap['linbob'] = {path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
-/*
-serverMap['jenkins'] = {path: '/api/json', server: 'http://jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
-serverMap['virgon'] = {path: '/api/json', server: 'http://virgon.wdstechnology.com', port:'80', type: 'jenkins'};
-serverMap['winbob'] = {path: '/cruisecontrol/json.jsp', server: 'http://winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
-serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'http://linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
 */
+serverMap['jenkins'] = {path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
+serverMap['virgon'] = {path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
+serverMap['winbob'] = {path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
+serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
+
+
+var feedCacheMap = {};
 
 /**
  * Routing
@@ -107,14 +110,25 @@ app.get('/list', function(req, res) {
 });
 
 app.get('/get/:serverName', function(req, res){
-	getFeed(req.params.serverName, function(err, data) {
-		if(err) { res.send(500, { error: err }); } 
-		
-		res.status(200);
-		res.render('includes/job_selections', {
-			jobs: data
-		});
-	});
+    var name = req.params.serverName
+    
+    if(feedCacheMap[name] != undefined) {
+        res.status(200);
+        res.render('includes/job_selections', {
+            jobs: feedCacheMap[name]
+        });
+    } else {
+        getFeed(name, function(err, data) {
+            if(err) { res.send(500, { error: err }); } 
+            
+            feedCacheMap[name] = data;
+            
+            res.status(200);
+            res.render('includes/job_selections', {
+                jobs: data
+            });
+        });
+    }
 });
 
 app.get('/edit', function(req, res){
@@ -160,6 +174,11 @@ app.get('/save', function(req, res){
 		res.redirect('/edit');
 	}
 	
+});
+
+app.get('/clear/cache', function(req, res) {
+    feedCacheMap = {};
+    res.send(200);
 });
 
 app.get('/test', function(req, res) {

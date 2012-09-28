@@ -3,6 +3,5 @@ extends layout
 block content
   h1= title
 
-  each job in jobs
-    div #{job}
-      img(src='/images/delete.png', id=job, onclick='removeJob(this);')
+  #jobList
+    include includes/job_listing.jade
