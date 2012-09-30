@@ -1,13 +1,16 @@
 extends layout
 
 block content
+  h3= title
+
   form(action='/save', method='get')
+    label(for='server') Server: 
     select(name='server', id='server', onchange='retrieveJobs()')
+      option(value='') 
       option(value='jenkins') Jenkins
       option(value='virgon') Virgon
       option(value='winbob') Winbob
       option(value='linbob') Linbob
-
 
     input(type='submit', value='Submit')
 

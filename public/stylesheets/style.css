@@ -1,7 +1,90 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #656565;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 18px;
+  line-height: 1.5em;
+  background-color: #e0e0e0;
 }
-a {
-  color: #00b7ff;
+h3 {
+  color: #636363;
+}
+/*
+ * Header style
+ */
+#header {
+  min-height: 60px;
+  padding: 20px;
+  background-color: #2d2c2e;
+}
+#headerText {
+  font-size: 48px;
+  width: 500px;
+  float: left;
+  color: #fff;
+  margin-top: 10px;
+  text-shadow: 5px 5px 5px #656565;
+}
+/* 
+ * Footer style
+ */
+#footer {
+  padding: 10px 0;
+  text-align: center;
+}
+/* 
+ * Menu style 
+ */
+#mainMenu {
+  float: right;
+  padding-right: 20px;
+}
+.menuItem {
+  background-color: #a5c451;
+  text-align: center;
+  width: 80px;
+  float: left;
+  padding: 10px;
+  margin-left: 25px;
+  box-shadow: 5px 5px 5px #d2f476;
+  border-radius: 1px;
+/* Firefox 3.6 and earlier */
+  -moz-border-radius: 1px;
+}
+.menuItem:hover,
+.menuItem a {
+  text-decoration: none;
+  color: #fff;
+}
+.menuItem a:hover {
+  text-decoration: none;
+  font-weight: bold;
+}
+.menuItem a:visited {
+  text-decoration: none;
+}
+/*
+ * Content
+ */
+#mainContent {
+  padding: 10px 30px;
+  min-height: 500px;
+  clear: both;
+}
+#jobContent {
+  padding: 10px 0;
+  word-wrap: break-word;
+/* Safari and Chrome */
+  -webkit-column-count: 2;
+  -webkit-column-gap: 60px;
+  -webkit-column-rule: 4px outset #f0f;
+/* Firefox */
+  -moz-column-count: 2;
+  -moz-column-gap: 60px;
+  -moz-column-rule: 4px outset #f0f;
+}
+.warning {
+  color: #f00;
+  font-weight: bold;
 }

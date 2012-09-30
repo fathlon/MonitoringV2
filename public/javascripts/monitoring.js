@@ -2,8 +2,14 @@
 //     // Code here
 // });
 
+function getPath(path) {
+	$('#mainContent').load(path);
+}
+
 function retrieveJobs() {
-	$('#jobContent').load('/get/' + $('#server').val());
+	if ($('#server').val() != ''){
+		$('#jobContent').load('/get/' + $('#server').val());		
+	}
 }
 
 function removeJob(job) {
@@ -15,7 +21,20 @@ function removeJob(job) {
 			alert(err);
 		},
 		success: function(data) {
-            $('#jobList').html('/list #jobList');
+            $('#jobList').load('/list #jobList');
+		}
+	});
+}
+
+function clearCache() {
+	$.ajax({
+		type: 'GET',
+		url: '/clear/cache',
+		error: function(err) {
+			alert('Error clearing cache - '+err);
+		},
+		success: function(data) {
+            alert('Cache cleared');
 		}
 	});
 }

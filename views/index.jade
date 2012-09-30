@@ -1,11 +1,15 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h3= title
+  //
+    label Currently monitoring:
+    #serverList
+      ul
+        each serverName in monitoredServers
+          li: span #{serverName}
 
-  each job in servers.jenkins
-    li #{job.name}
-
-  each job in servers.virgon
-    li #{job.name}
+  label Failed Jobs
+  #failureList
+    each job in failureJobs
+      li: span.warning #{job.name}
