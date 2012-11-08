@@ -60,6 +60,7 @@ serverMap['linbob'] = {name: 'linbob', path: '/server/linbob', server: 'localhos
 /*
 serverMap['jenkins'] = {path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
 serverMap['virgon'] = {path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
+serverMap['leonis'] = {path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
 serverMap['winbob'] = {path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
 serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
 */
@@ -91,23 +92,23 @@ app.get('/index', function(req, res) {
 				callback(null, allDBJobs);
 			});
 		},
-		flagFailureJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results){
+		flagFailureJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
 			var failureJobs = [];
 			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
 				var feed = results.getAllFeed[i];
 				var dbJob = results.getAllDBJobs[i];
 				
-				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++){
+				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
 					var feedJob = feed.jobs[j];
 					var feedType = feed.type;
 					if(dbJob.indexOf(feedJob.name) > -1){
-						if(feedType === 'jenkins'){
-							if(feedJob.color === 'red'){
-								failureJobs.push(feedJob);
+						if(feedType === 'jenkins') {
+							if(feedJob.color === 'red' || feedJob.color === 'red_anime') {
+								failureJobs.push(createFailedJob(feed.name, feedJob));
 							}
-						} else if(feedType === 'cruisecontrol'){
-							if(feedJob.result === 'failed'){
-								failureJobs.push(feedJob);
+						} else if(feedType === 'cruisecontrol') {
+							if(feedJob.result === 'failed') {
+								failureJobs.push(createFailedJob(feed.name, feedJob));
 							}
 						}
 					}
@@ -247,7 +248,7 @@ function getFeed(serverName, callback) {
 				jobFeed = jobFeed.jobs;
 			}
 			
-			callback(null, { type: server.type, jobs: jobFeed});
+			callback(null, { name: serverName, type: server.type, jobs: jobFeed});
 		});	
 		
 	}).on('error', function(e) {
@@ -280,3 +281,74 @@ function retrieveDBJobs(serverName, callback) {
 		});
 	}
 }
+
+function getFailedJobFeed(serverName, jobName, callback) {
+	var server = serverMap[serverName];
+	var path = '/job/' + jobName + server.path;
+	
+	var options = { host: server.server, port: server.port, path: path };
+	http.get(options, function(res) {
+	    var contentString = '';
+		res.on('data', function(chunk){
+		    contentString += chunk;
+		});
+
+		res.on('end', function(){
+			var jobFeed = JSON.parse(contentString);
+			lastBuild = jobFeed.lastBuild;
+			callback(null, lastBuild.url);
+		});	
+		
+	}).on('error', function(e) {
+		var errorMsg = 'Error retrieving job feed from ' + server.name + ' for ' + jobName + ': ' + e.message;
+		console.log(errorMsg);
+		callback(errorMsg);
+	});
+}
+
+function createFailedJob(serverName, serverJob) {
+	var server = serverMap[serverName];
+	var fjob = {};
+	fjob['name'] = serverJob.name;
+
+	if(server.type === 'jenkins') {
+		fjob['status'] = serverJob.color;
+		fjob['url'] = getJenkinsFailedJob(serverName, serverJob.name);
+	} else {
+		//Cruisecontrol defaults to 'red'
+		fjob['status'] = 'red';
+		fjob['url'] = constructUrl(server) + '/buildresults/' + serverJob.name;
+	}
+	return fjob;
+	
+	getJenkinsFailedJob(serverName, jobName, setJob(fjob));
+}
+
+function setJob(serverName, jobName, fjob) {
+	
+	if(server.type === 'jenkins') {
+		fjob['status'] = serverJob.color;
+		fjob['url'] = getJenkinsFailedJob(serverName, jobName);
+	} else {
+		//Cruisecontrol defaults to 'red'
+		fjob['status'] = 'red';
+		fjob['url'] = constructUrl(server) + '/buildresults/' + serverJob.name;
+	}
+	return fjob;
+}
+
+function getJenkinsFailedJob(serverName, serverJob) {
+	getFailedJobFeed(serverName, serverJob, function(err, url){
+		if(err) { return ''; }		
+		return url;
+	});
+}
+
+function constructUrl(server) {
+	var url = 'http://';
+	url += server.server;
+	url += ':';
+	url += server.port;
+	return url;
+}
+

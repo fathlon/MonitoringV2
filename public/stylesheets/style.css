@@ -2,28 +2,33 @@ body {
   margin: 0;
   padding: 0;
   color: #656565;
-  font-family: Tahoma, Geneva, sans-serif;
+  font-family: Papyrus, Calibri, Tahoma, Geneva, sans-serif;
   font-size: 18px;
   line-height: 1.5em;
   background-color: #e0e0e0;
 }
-h3 {
-  color: #636363;
+hr {
+  margin-top: 10px;
+}
+a {
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 /*
  * Header style
  */
 #header {
-  min-height: 60px;
-  padding: 20px;
+  min-height: 50px;
+  padding: 10px 20px;
   background-color: #2d2c2e;
 }
 #headerText {
-  font-size: 48px;
-  width: 500px;
+  font-size: 42px;
   float: left;
   color: #fff;
-  margin-top: 10px;
+  margin-top: 15px;
   text-shadow: 5px 5px 5px #656565;
 }
 /* 
@@ -45,17 +50,18 @@ h3 {
   text-align: center;
   width: 80px;
   float: left;
-  padding: 10px;
+  padding: 5px;
   margin-left: 25px;
   box-shadow: 5px 5px 5px #d2f476;
   border-radius: 1px;
 /* Firefox 3.6 and earlier */
   -moz-border-radius: 1px;
 }
-.menuItem:hover,
 .menuItem a {
   text-decoration: none;
   color: #fff;
+  position: relative;
+  top: 3px;
 }
 .menuItem a:hover {
   text-decoration: none;
@@ -72,19 +78,54 @@ h3 {
   min-height: 500px;
   clear: both;
 }
-#jobContent {
+#jobContent,
+#failureList {
   padding: 10px 0;
   word-wrap: break-word;
 /* Safari and Chrome */
   -webkit-column-count: 2;
   -webkit-column-gap: 60px;
-  -webkit-column-rule: 4px outset #f0f;
+  -webkit-column-rule: 4px outset transparent;
 /* Firefox */
   -moz-column-count: 2;
   -moz-column-gap: 60px;
-  -moz-column-rule: 4px outset #f0f;
+  -moz-column-rule: 4px outset transparent;
 }
-.warning {
+#failureList {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+#failureList li div {
+  height: 35px;
+}
+#serverList {
+  margin: 20px 0;
+  min-height: 30px;
+}
+.serverName {
+  margin: 0 10px;
+}
+.header {
+  color: #636363;
+  font-size: 36px;
+}
+.red,
+.red_anime {
   color: #f00;
   font-weight: bold;
+  font-size: 24px;
+}
+.passed {
+  color: #74c90c;
+  font-weight: bold;
+}
+.red_anime {
+  text-decoration: blink;
+}
+.inLine {
+  float: left;
+  vertical-align: middle;
+}
+.clear {
+  clear: both;
 }

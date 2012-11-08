@@ -1,15 +1,17 @@
 extends layout
 
 block content
-  h3= title
-  //
-    label Currently monitoring:
-    #serverList
-      ul
-        each serverName in monitoredServers
-          li: span #{serverName}
+  #serverList.header
+    .inLine(style='margin-right: 20px;') Monitoring:
+    each serverName in monitoredServers
+      .inLine.serverName.passed #{serverName}
 
-  label Failed Jobs
+  hr.clear
+
+  include includes/clock.jade
   #failureList
     each job in failureJobs
-      li: span.warning #{job.name}
+      li
+        a(href=job.url, class=job.status, target='_blank') #{job.name}
+
+  

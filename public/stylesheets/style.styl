@@ -1,7 +1,10 @@
-fontSize = 18px
-fontFamily = Tahoma, Geneva, sans-serif
+fontFamily = Papyrus, Calibri, Tahoma, Geneva, sans-serif
 fontColor = #656565
+fontSize = 18px
+visibleSize = 24px
+
 headerColor = #636363
+headerSize = 36px
 
 body
   margin 0
@@ -12,23 +15,28 @@ body
   line-height 1.5em 
   background-color #E0E0E0
 
-h3
-  color headerColor
+hr
+  margin-top 10px
+
+a
+  text-decoration none
+
+a:hover
+  text-decoration underline
 
 /*
  * Header style
  */
 #header
-  min-height 60px
-  padding 20px
+  min-height 50px
+  padding 10px 20px
   background-color #2D2C2E
 
 #headerText
-  font-size 48px
-  width 500px
+  font-size 42px
   float left
   color white
-  margin-top 10px
+  margin-top 15px
   text-shadow 5px 5px 5px fontColor
 
 /* 
@@ -50,19 +58,18 @@ h3
   text-align center
   width 80px
   float left
-  padding 10px
+  padding 5px
   margin-left 25px
   box-shadow 5px 5px 5px #D2F476
   border-radius 1px
   /* Firefox 3.6 and earlier */
   -moz-border-radius 1px
 
-.menuItem:hover
-
-
 .menuItem a
   text-decoration none
   color white
+  position relative
+  top 3px
 
 .menuItem a:hover
   text-decoration none
@@ -79,19 +86,53 @@ h3
   min-height 500px
   clear both
 
-#jobContent
+#jobContent, #failureList
   padding 10px 0
   word-wrap break-word
 
   /* Safari and Chrome */
   -webkit-column-count 2
   -webkit-column-gap 60px
-  -webkit-column-rule 4px outset #ff00ff
+  -webkit-column-rule 4px outset transparent
   /* Firefox */
   -moz-column-count 2
   -moz-column-gap 60px
-  -moz-column-rule 4px outset #ff00ff
+  -moz-column-rule 4px outset transparent
 
-.warning
+#failureList
+  margin 10px 0
+  padding-left 20px
+
+#failureList li div
+  height 35px
+
+#serverList
+  margin 20px 0
+  min-height 30px
+
+.serverName
+  margin 0 10px
+
+.header
+  color headerColor
+  font-size headerSize
+
+.red, .red_anime
   color red
   font-weight bold
+  font-size visibleSize
+
+.passed
+  color #74C90C
+  font-weight bold
+
+.red_anime {
+  text-decoration blink
+}
+
+.inLine
+  float left
+  vertical-align middle
+
+.clear
+  clear both
