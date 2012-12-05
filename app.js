@@ -101,20 +101,26 @@ app.get('/index', function(req, res) {
 				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
 					var feedJob = feed.jobs[j];
 					var feedType = feed.type;
-					if(dbJob.indexOf(feedJob.name) > -1){
+					if(dbJob.indexOf(feedJob.name) > -1){					
 						if(feedType === 'jenkins') {
 							if(feedJob.color === 'red' || feedJob.color === 'red_anime') {
-								failureJobs.push(createFailedJob(feed.name, feedJob));
+								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
 							}
 						} else if(feedType === 'cruisecontrol') {
 							if(feedJob.result === 'failed') {
-								failureJobs.push(createFailedJob(feed.name, feedJob));
+								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
 							}
 						}
 					}
 				}
 			}
 			callback(null, failureJobs);
+		}],
+		createFailureJobs: ['flagFailureJobs', function(callback, results) {
+			async.map(results.flagFailureJobs, createFailedJob, function(err, failedJobs){
+				if(err) { callback(err); }
+				callback(null, failedJobs);
+			});
 		}]
 	},
 	function(err, results) {	
@@ -123,7 +129,7 @@ app.get('/index', function(req, res) {
 		res.render('index', {
 			title: 'Monitoring Status',
 			monitoredServers: serverMapKeys,
-			failureJobs: results.flagFailureJobs
+			failureJobs: []	//results.createFailureJobs
 		});
 	});
 });
@@ -163,6 +169,60 @@ app.get('/save', function(req, res){
 	} else {
 		res.redirect('/add');
 	}	
+});
+
+app.get('/failures', function(req, res){
+	async.auto({
+		getAllFeed: function(callback)	{
+			async.map(serverMapKeys, getFeed, function(err, allFeed){
+				if(err) { callback(err); }
+				callback(null, allFeed);
+			});
+		},
+		getAllDBJobs: function(callback){
+			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs){
+				if(err) { callback(err); }
+				callback(null, allDBJobs);
+			});
+		},
+		flagFailureJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
+			var failureJobs = [];
+			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
+				var feed = results.getAllFeed[i];
+				var dbJob = results.getAllDBJobs[i];
+				
+				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
+					var feedJob = feed.jobs[j];
+					var feedType = feed.type;
+					if(dbJob.indexOf(feedJob.name) > -1){					
+						if(feedType === 'jenkins') {
+							if(feedJob.color === 'red' || feedJob.color === 'red_anime') {
+								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+							}
+						} else if(feedType === 'cruisecontrol') {
+							if(feedJob.result === 'failed') {
+								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+							}
+						}
+					}
+				}
+			}
+			callback(null, failureJobs);
+		}],
+		createFailureJobs: ['flagFailureJobs', function(callback, results) {
+			async.map(results.flagFailureJobs, createFailedJob, function(err, failedJobs){
+				if(err) { callback(err); }
+				callback(null, failedJobs);
+			});
+		}]
+	},
+	function(err, results) {	
+		if(err) { res.send(500, { error: err }); }
+
+		res.render('includes/job_failures', {
+			failureJobs: results.createFailureJobs
+		});
+	});
 });
 
 app.get('/get/:serverName', function(req, res){
@@ -282,9 +342,8 @@ function retrieveDBJobs(serverName, callback) {
 	}
 }
 
-function getFailedJobFeed(serverName, jobName, callback) {
-	var server = serverMap[serverName];
-	var path = '/job/' + jobName + server.path;
+function getFailedJobFeed(server, job, callback) {
+	var path = '/job/' + job['name'] + server.path;
 	
 	var options = { host: server.server, port: server.port, path: path };
 	http.get(options, function(res) {
@@ -295,53 +354,31 @@ function getFailedJobFeed(serverName, jobName, callback) {
 
 		res.on('end', function(){
 			var jobFeed = JSON.parse(contentString);
-			lastBuild = jobFeed.lastBuild;
-			callback(null, lastBuild.url);
+			job['status'] = jobFeed.color;
+			job['url'] = jobFeed.lastFailedBuild.url;
+			callback(null, job);
 		});	
 		
 	}).on('error', function(e) {
-		var errorMsg = 'Error retrieving job feed from ' + server.name + ' for ' + jobName + ': ' + e.message;
-		console.log(errorMsg);
-		callback(errorMsg);
+		console.log('Error retrieving job feed from ' + server.name + ' for ' + job['name'] + ': ' + e.message);
+		job['status'] = 'red';
+		job['url'] = '';
+		callback(null, job);
 	});
 }
 
-function createFailedJob(serverName, serverJob) {
-	var server = serverMap[serverName];
-	var fjob = {};
-	fjob['name'] = serverJob.name;
-
+function createFailedJob(fjob, callback) {
+	var server = serverMap[fjob.serverName];
+	var job = {};
+	job['name'] = fjob.jobName;
 	if(server.type === 'jenkins') {
-		fjob['status'] = serverJob.color;
-		fjob['url'] = getJenkinsFailedJob(serverName, serverJob.name);
+		getFailedJobFeed(server, job, callback);
 	} else {
 		//Cruisecontrol defaults to 'red'
-		fjob['status'] = 'red';
-		fjob['url'] = constructUrl(server) + '/buildresults/' + serverJob.name;
+		job['status'] = 'red';
+		job['url'] = constructUrl(server) + '/buildresults/' + fjob.jobName;
+		callback(null, job);
 	}
-	return fjob;
-	
-	getJenkinsFailedJob(serverName, jobName, setJob(fjob));
-}
-
-function setJob(serverName, jobName, fjob) {
-	
-	if(server.type === 'jenkins') {
-		fjob['status'] = serverJob.color;
-		fjob['url'] = getJenkinsFailedJob(serverName, jobName);
-	} else {
-		//Cruisecontrol defaults to 'red'
-		fjob['status'] = 'red';
-		fjob['url'] = constructUrl(server) + '/buildresults/' + serverJob.name;
-	}
-	return fjob;
-}
-
-function getJenkinsFailedJob(serverName, serverJob) {
-	getFailedJobFeed(serverName, serverJob, function(err, url){
-		if(err) { return ''; }		
-		return url;
-	});
 }
 
 function constructUrl(server) {

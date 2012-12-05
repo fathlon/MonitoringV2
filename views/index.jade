@@ -1,6 +1,8 @@
 extends layout
 
 block content
+  script(type='text/javascript', src='/javascripts/index.js')
+
   #serverList.header
     .inLine(style='margin-right: 20px;') Monitoring:
     each serverName in monitoredServers
@@ -10,8 +12,5 @@ block content
 
   include includes/clock.jade
   #failureList
-    each job in failureJobs
-      li
-        a(href=job.url, class=job.status, target='_blank') #{job.name}
-
+    include includes/job_failures.jade
   

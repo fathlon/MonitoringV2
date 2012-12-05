@@ -1,9 +1,10 @@
-// $(function() {
-//     // Code here
-// });
+$(function() {
+    // code here
+	loadFailures();
+});
 
-function getPath(path) {
-	$('#mainContent').load(path);
+function loadFailures() {
+	$('#failureList').load('/failures');
 }
 
 function retrieveJobs() {
@@ -21,7 +22,7 @@ function removeJob(job) {
 			alert(err);
 		},
 		success: function(data) {
-            $('#jobList').load('/list #jobList');
+            $('#jobContent').load('/list #jobContent/');
 		}
 	});
 }
