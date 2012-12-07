@@ -79,7 +79,8 @@ app.get('/', function(req, res) {
 });
 
 app.get('/index', function(req, res) {
-	async.auto({
+	/*
+    async.auto({
 		getAllFeed: function(callback)	{
 			async.map(serverMapKeys, getFeed, function(err, allFeed){
 				if(err) { callback(err); }
@@ -132,6 +133,12 @@ app.get('/index', function(req, res) {
 			failureJobs: []	//results.createFailureJobs
 		});
 	});
+    */
+    res.render('index', {
+        title: 'Monitoring Status',
+        monitoredServers: serverMapKeys,
+        failureJobs: []	//results.createFailureJobs
+    });
 });
 
 app.get('/list', function(req, res) {
@@ -148,6 +155,7 @@ app.get('/list', function(req, res) {
 app.get('/add', function(req, res){
 	res.render('add', {
 		title: 'Choose jobs to monitor:',
+        availableServers: serverMapKeys,
 		jobs: []
 	})
 });
