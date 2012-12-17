@@ -1,14 +1,14 @@
-fontFamily = myPapyrus, Calibri, Tahoma, Geneva, sans-serif
+fontFamily = Calibri, Tahoma, Geneva, sans-serif
 fontColor = #656565
-fontSize = 18px
-visibleSize = 24px
+fontSize = 20px
+visibleSize = 30px
 
 headerColor = #636363
 headerSize = 36px
 
 @font-face
-  font-family 'myPapyrus'
-  src url('../fonts/papyrus-font.ttf')
+  font-family 'customPapyrus'
+  src url("../fonts/papyrus-font.ttf") format('truetype')
 
 body
   margin 0
@@ -18,6 +18,10 @@ body
   font-size fontSize
   line-height 1.5em 
   background-color #E0E0E0
+
+h3
+  margin 15px 0
+  text-decoration underline
 
 hr
   margin-top 10px
@@ -37,10 +41,11 @@ a:hover
   background-color #2D2C2E
 
 #headerText
-  font-size 42px
+  font-family customPapyrus
+  font-size 64px
   float left
   color white
-  margin-top 15px
+  margin-top 12px
   text-shadow 5px 5px 5px fontColor
 
 /* 
@@ -72,8 +77,6 @@ a:hover
 .menuItem a
   text-decoration none
   color white
-  position relative
-  top 3px
 
 .menuItem a:hover
   text-decoration none
@@ -91,7 +94,7 @@ a:hover
   clear both
 
 #jobContent, #failureList
-  padding 10px 0
+  padding 0
   word-wrap break-word
 
   /* Safari and Chrome */
@@ -103,6 +106,9 @@ a:hover
   -moz-column-gap 60px
   -moz-column-rule 4px outset transparent
 
+#jobContent input[type=checkbox]
+  margin-right 10px
+
 #failureList
   margin 10px 0
   padding-left 20px
@@ -111,8 +117,8 @@ a:hover
   height 35px
 
 #serverList
-  margin 20px 0
-  min-height 30px
+  margin 10px 0
+  min-height 40px
 
 .serverName
   margin 0 10px
@@ -130,9 +136,13 @@ a:hover
   color #74C90C
   font-weight bold
 
-.red_anime {
+.red_anime
   text-decoration blink
-}
+
+#floatingSubmit
+  position fixed
+  top 140px
+  right 50px
 
 .inLine
   float left

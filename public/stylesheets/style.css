@@ -1,11 +1,19 @@
+@font-face {
+  font-family: 'customPapyrus';
+  src: url("../fonts/papyrus-font.ttf") format('truetype');
+}
 body {
   margin: 0;
   padding: 0;
   color: #656565;
-  font-family: Papyrus, Calibri, Tahoma, Geneva, sans-serif;
-  font-size: 18px;
+  font-family: Calibri, Tahoma, Geneva, sans-serif;
+  font-size: 20px;
   line-height: 1.5em;
   background-color: #e0e0e0;
+}
+h3 {
+  margin: 15px 0;
+  text-decoration: underline;
 }
 hr {
   margin-top: 10px;
@@ -25,10 +33,11 @@ a:hover {
   background-color: #2d2c2e;
 }
 #headerText {
-  font-size: 42px;
+  font-family: customPapyrus;
+  font-size: 64px;
   float: left;
   color: #fff;
-  margin-top: 15px;
+  margin-top: 12px;
   text-shadow: 5px 5px 5px #656565;
 }
 /* 
@@ -60,8 +69,6 @@ a:hover {
 .menuItem a {
   text-decoration: none;
   color: #fff;
-  position: relative;
-  top: 3px;
 }
 .menuItem a:hover {
   text-decoration: none;
@@ -80,7 +87,7 @@ a:hover {
 }
 #jobContent,
 #failureList {
-  padding: 10px 0;
+  padding: 0;
   word-wrap: break-word;
 /* Safari and Chrome */
   -webkit-column-count: 2;
@@ -91,6 +98,9 @@ a:hover {
   -moz-column-gap: 60px;
   -moz-column-rule: 4px outset transparent;
 }
+#jobContent input[type=checkbox] {
+  margin-right: 10px;
+}
 #failureList {
   margin: 10px 0;
   padding-left: 20px;
@@ -99,8 +109,8 @@ a:hover {
   height: 35px;
 }
 #serverList {
-  margin: 20px 0;
-  min-height: 30px;
+  margin: 10px 0;
+  min-height: 40px;
 }
 .serverName {
   margin: 0 10px;
@@ -113,7 +123,7 @@ a:hover {
 .red_anime {
   color: #f00;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 30px;
 }
 .passed {
   color: #74c90c;
@@ -121,6 +131,11 @@ a:hover {
 }
 .red_anime {
   text-decoration: blink;
+}
+#floatingSubmit {
+  position: fixed;
+  top: 140px;
+  right: 50px;
 }
 .inLine {
   float: left;

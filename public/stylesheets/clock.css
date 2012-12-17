@@ -5,11 +5,13 @@
   font-weight: normal;
   font-style: normal;
 }
+
 .container {
   width: 960px;
   margin: 0 auto;
   overflow: hidden;
 }
+
 .clock {
   width: 280px;
   margin: 0 auto;
@@ -17,6 +19,7 @@
   color: #fff;
   float: right;
 }
+
 #Date {
   font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
   font-size: 52px;
@@ -24,12 +27,14 @@
   text-shadow: 0 0 5px #00c6ff;
   margin-bottom: 20px;
 }
+
 ul {
   margin: 0 auto;
   padding: 0px;
   list-style: none;
   text-align: center;
 }
+
 ul li {
   display: inline;
   font-size: 48px;
@@ -37,6 +42,7 @@ ul li {
   font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
   text-shadow: 0 0 5px #00c6ff;
 }
+
 #point {
   position: relative;
   -moz-animation: mymove 1s ease infinite;
@@ -44,6 +50,7 @@ ul li {
   padding-left: 10px;
   padding-right: 10px;
 }
+
 /* Simple Animation */
 @-webkit-keyframes mymove {
   0% {

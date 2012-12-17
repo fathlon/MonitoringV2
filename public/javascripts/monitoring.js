@@ -10,6 +10,8 @@ function loadFailures() {
 function retrieveJobs() {
 	if ($('#server').val() != ''){
 		$('#jobContent').load('/get/' + $('#server').val());		
+	} else {
+		$('#jobContent').html('');
 	}
 }
 
@@ -26,6 +28,12 @@ function removeJob(job) {
 	});
 }
 
+function addJobs() {
+	$('input:checkbox[name=jobsCb]:checked').each(function() {
+		flashMessage($(this).val());	
+	});
+}
+
 function clearCache() {
 	$.ajax({
 		type: 'GET',
@@ -37,4 +45,10 @@ function clearCache() {
             alert('Cache cleared');
 		}
 	});
+}
+
+function flashMessage(message) {
+	jQuery.noticeAdd({
+		text: message
+    });
 }

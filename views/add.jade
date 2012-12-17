@@ -10,7 +10,9 @@ block content
       each serverName in availableServers
         option(value='#{serverName}') #{serverName}
 
-    input(type='submit', value='Submit')
+    #floatingSubmit
+      input(type='submit', value='Submit')
+      input(type='button', value='click', onclick='addJobs()')
 
     #jobContent
       include includes/job_selections.jade
