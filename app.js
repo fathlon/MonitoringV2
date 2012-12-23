@@ -67,7 +67,7 @@ serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'linbob.wdsgloba
 
 var serverMapKeys = Object.keys(serverMap);
 var feedCacheMap = {};
-
+var jenkinsFailureType = ['red', 'red_anime', 'yellow'];
 /**
  * Routing
  */
@@ -144,7 +144,7 @@ app.get('/index', function(req, res) {
 app.get('/list', function(req, res) {
 	retrieveDBJobs(null, function(err, jobs) {
 		if (err) { res.send(500, { error: err }); }
-		
+
 		res.render('list', {
 			title: 'Monitored Jobs',
 			jobs: jobs
@@ -163,20 +163,17 @@ app.get('/add', function(req, res){
 app.get('/save', function(req, res){
 	var jobs = req.param('jobs');
 	var server = req.param('server');
+	var savedJobs = [];
 
-	if(jobs != undefined) {
-		// for (var i = 0, len = jobs.length; i < len; i++) {		
-		// }
-		jobs.forEach(function(job){
-			db.save(job, {name: job, server: server}, function(err) {
-				if(err) { throw err; }
-			});
-		});
+	var toSaveJobs = constructToSaveJobs(jobs, server);
+	
+	async.map(toSaveJobs, saveDBJobs, function(err, results) {
 		delete feedCacheMap[server];
-		res.redirect('/list');
-	} else {
-		res.redirect('/add');
-	}	
+		
+		if(err) { res.send(err); }
+		
+		res.send(results);
+	});
 });
 
 app.get('/failures', function(req, res){
@@ -199,17 +196,19 @@ app.get('/failures', function(req, res){
 				var feed = results.getAllFeed[i];
 				var dbJob = results.getAllDBJobs[i];
 				
-				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
-					var feedJob = feed.jobs[j];
-					var feedType = feed.type;
-					if(dbJob.indexOf(feedJob.name) > -1){					
-						if(feedType === 'jenkins') {
-							if(feedJob.color === 'red' || feedJob.color === 'red_anime') {
-								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
-							}
-						} else if(feedType === 'cruisecontrol') {
-							if(feedJob.result === 'failed') {
-								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+				if(feed != 'FF') {
+					for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
+						var feedJob = feed.jobs[j];
+						var feedType = feed.type;
+						if(dbJob.indexOf(feedJob.name) > -1){					
+							if(feedType === 'jenkins') {
+								if(jenkinsFailureType.indexOf(feedJob.color) != -1) {
+									failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+								}
+							} else if(feedType === 'cruisecontrol') {
+								if(feedJob.result === 'failed') {
+									failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+								}
 							}
 						}
 					}
@@ -320,9 +319,8 @@ function getFeed(serverName, callback) {
 		});	
 		
 	}).on('error', function(e) {
-		var errorMsg = 'Error retrieving feed from ' + server.name + ': ' + e.message;
-		console.log(errorMsg);
-		callback(errorMsg);
+		console.log('Error retrieving feed from ' + server.name + ': ' + e.message);
+		callback(null, 'FF'); //Feed Failed
 	});
 }
 
@@ -350,6 +348,14 @@ function retrieveDBJobs(serverName, callback) {
 	}
 }
 
+function saveDBJobs(job, callback) {
+	db.save(job.name, job, function(err) {
+		if(err) { callback(err); }
+
+		callback(null, job.name);
+	});
+}
+
 function getFailedJobFeed(server, job, callback) {
 	var path = '/job/' + job['name'] + server.path;
 	
@@ -373,6 +379,16 @@ function getFailedJobFeed(server, job, callback) {
 		job['url'] = '';
 		callback(null, job);
 	});
+}
+
+function constructToSaveJobs(jobs, server) {
+	var jobList = [];
+	
+	jobs.forEach(function(job){
+		jobList.push({name: job, server: server});
+	});
+	
+	return jobList;
 }
 
 function createFailedJob(fjob, callback) {

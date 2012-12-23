@@ -1,6 +1,40 @@
 $(function() {
     // code here
 	loadFailures();
+
+	$('#addForm').submit(function(event) {
+		/* Prevent form from submitting normally */
+		event.preventDefault();
+		
+		var form = $(this);
+		var checkedJobsInput = form.find('input:checkbox[name=jobsCb]:checked');
+		var selectedServer = form.find('select[id=server] option:selected').val();
+		var url = form.attr('action');
+		
+		if(checkedJobsInput.length == 0) {
+			return;
+		}
+		
+		var selectedJobs = [];
+		for (var i = 0, len = checkedJobsInput.length; i < len; i++) {
+			selectedJobs.push(checkedJobsInput[i].value);
+		}
+		
+		$.ajax({
+			type: 'GET',
+			url: '/save',
+			data: { jobs: selectedJobs, server: selectedServer},
+			error: function(err) {
+				flashErrorMessage(err);
+			},
+			success: function(data) {
+				for (var i = 0, len = data.length; i < len; i++) {
+					flashMessage(data[i] + ' saved.');
+				}
+				$('#addJobHolder').load('/get/' + selectedServer);
+			}
+		});
+	});
 });
 
 function loadFailures() {
@@ -9,9 +43,9 @@ function loadFailures() {
 
 function retrieveJobs() {
 	if ($('#server').val() != ''){
-		$('#jobContent').load('/get/' + $('#server').val());		
+		$('#addJobHolder').load('/get/' + $('#server').val());		
 	} else {
-		$('#jobContent').html('');
+		$('#addJobHolder').html('');
 	}
 }
 
@@ -20,17 +54,12 @@ function removeJob(job) {
 		type: 'GET',
 		url: '/delete/' + job.id,
 		error: function(err) {
-			alert(err);
+			flashErrorMessage(err);
 		},
 		success: function(data) {
-            $('#jobContent').load('/list #jobContent/');
+			flashMessage(job.id + ' removed.');
+            $('#listJobHolder').load('/list #jobContent');
 		}
-	});
-}
-
-function addJobs() {
-	$('input:checkbox[name=jobsCb]:checked').each(function() {
-		flashMessage($(this).val());	
 	});
 }
 
@@ -39,16 +68,26 @@ function clearCache() {
 		type: 'GET',
 		url: '/clear/cache',
 		error: function(err) {
-			alert('Error clearing cache - '+err);
+			flashErrorMessage('Error clearing cache - '+err);
 		},
 		success: function(data) {
-            alert('Cache cleared');
+            flashMessage('Cache cleared');
 		}
 	});
 }
 
 function flashMessage(message) {
 	jQuery.noticeAdd({
-		text: message
+		text: message,
+		stay: false,
+		type: 'success'
+    });
+}
+
+function flashErrorMessage(message) {
+	jQuery.noticeAdd({
+		text: message,
+		stay: true,
+		type: 'error'
     });
 }

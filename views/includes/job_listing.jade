@@ -1,3 +1,5 @@
-each job in jobs
-  div #{job}
-    img(src='/images/delete.png', id=job, onclick='removeJob(this);')
+#jobContent
+  each job in jobs
+    div 
+      img(src='/images/delete.png', id=job, class='deleteImg', onclick='removeJob(this);')
+      | #{job}

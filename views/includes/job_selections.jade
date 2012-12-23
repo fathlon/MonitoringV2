@@ -1,4 +1,5 @@
-each job in jobs
-  input(type='checkbox', name='jobsCb', id=job.name, value=job.name) 
-  label(for=job.name) #{job.name}
-  br
+#jobContent
+  each job in jobs
+    input(type='checkbox', name='jobsCb', id=job.name, value=job.name) 
+    label(for=job.name) #{job.name}
+    br

@@ -3,7 +3,7 @@ extends layout
 block content
   h3= title
 
-  form(action='/save', method='get')
+  form(action='/save', id='addForm', method='get')
     label(for='server') Server: 
     select(name='server', id='server', onchange='retrieveJobs()')
       option(value='')
@@ -12,7 +12,6 @@ block content
 
     #floatingSubmit
       input(type='submit', value='Submit')
-      input(type='button', value='click', onclick='addJobs()')
 
-    #jobContent
+    #addJobHolder
       include includes/job_selections.jade

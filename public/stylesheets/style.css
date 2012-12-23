@@ -115,22 +115,34 @@ a:hover {
 .serverName {
   margin: 0 10px;
 }
+.deleteImg {
+  margin: 0 10px;
+  position: relative;
+  top: 2px;
+}
 .header {
   color: #636363;
   font-size: 36px;
 }
 .red,
-.red_anime {
-  color: #f00;
+.red_anime,
+.yellow {
   font-weight: bold;
   font-size: 30px;
+}
+.red,
+.red_anime {
+  color: #f00;
+}
+.red_anime {
+  text-decoration: blink;
+}
+.yellow {
+  color: #ff0;
 }
 .passed {
   color: #74c90c;
   font-weight: bold;
-}
-.red_anime {
-  text-decoration: blink;
 }
 #floatingSubmit {
   position: fixed;

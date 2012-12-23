@@ -9,20 +9,24 @@
 * html .notice-wrap {
 	position: absolute;		
 }
- 
+
 .notice-item {
-	height: 60px;
+	height: 100%;
 	background: #333;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	color: #eee;
-	padding: 6px 6px 0 6px;
+	padding: 0px 6px;
 	font-family: lucida Grande;
-	font-size: 11px;
+	font-size: 12px;
 	border: 2px solid #999;
 	display: block;
 	position: relative;
 	margin: 0 0 12px 0;
+}
+
+.notice-item p {
+	line-height: 20px;
 }
 
 .notice-item-close {
@@ -30,7 +34,7 @@
 	font-family: Arial;
 	font-size: 12px;
 	font-weight: bold;
-	right: 6px;
-	top: 6px;
+	right: 5px;
+	top: -5px;
 	cursor: pointer;
 }
