@@ -58,16 +58,17 @@ serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', server: 'localhos
 serverMap['winbob'] = {name: 'winbob', path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 serverMap['linbob'] = {name: 'linbob', path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 /*
-serverMap['jenkins'] = {path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
-serverMap['virgon'] = {path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
-serverMap['leonis'] = {path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
-serverMap['winbob'] = {path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
-serverMap['linbob'] = {path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
-*/
+serverMap['jenkins'] = {name: 'jenkins', path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
+serverMap['virgon'] = {name: 'virgon', path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
+serverMap['leonis'] = {name: 'leonis', path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
+serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
+serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};*/
 
 var serverMapKeys = Object.keys(serverMap);
 var feedCacheMap = {};
 var jenkinsFailureType = ['red', 'red_anime', 'yellow'];
+var customTimeout = 10000;
+
 /**
  * Routing
  */
@@ -299,8 +300,8 @@ app.get('/clear/cache', function(req, res) {
 function getFeed(serverName, callback) {
 	var server = serverMap[serverName];
 	
-	var options = { host: server.server, port: server.port, path: server.path };
-	http.get(options, function(res) {
+	var options = { host: server.server, port: server.port, path: server.path, method: 'get' };
+	var req = http.request(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
 		    contentString += chunk;
@@ -318,10 +319,21 @@ function getFeed(serverName, callback) {
 			callback(null, { name: serverName, type: server.type, jobs: jobFeed});
 		});	
 		
-	}).on('error', function(e) {
+	});
+	
+	req.on('socket', function (socket) {
+        socket.setTimeout(customTimeout);  
+        socket.on('timeout', function() {
+            req.abort();
+        });
+    });
+	
+	req.on('error', function(e) {
 		console.log('Error retrieving feed from ' + server.name + ': ' + e.message);
 		callback(null, 'FF'); //Feed Failed
 	});
+	
+	req.end();
 }
 
 function retrieveDBJobs(serverName, callback) {
@@ -357,10 +369,10 @@ function saveDBJobs(job, callback) {
 }
 
 function getFailedJobFeed(server, job, callback) {
-	var path = '/job/' + job['name'] + server.path;
+	var path = '/job/' + encodeURIComponent(job['name']) + server.path;
 	
-	var options = { host: server.server, port: server.port, path: path };
-	http.get(options, function(res) {
+	var options = { host: server.server, port: server.port, path: path, method: 'get' };
+	var req = http.request(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk){
 		    contentString += chunk;
@@ -373,12 +385,23 @@ function getFailedJobFeed(server, job, callback) {
 			callback(null, job);
 		});	
 		
-	}).on('error', function(e) {
+	});
+	
+	req.on('socket', function (socket) {
+        socket.setTimeout(customTimeout);  
+        socket.on('timeout', function() {
+            req.abort();
+        });
+    });
+	
+	req.on('error', function(e) {
 		console.log('Error retrieving job feed from ' + server.name + ' for ' + job['name'] + ': ' + e.message);
 		job['status'] = 'red';
 		job['url'] = '';
 		callback(null, job);
 	});
+	
+	req.end();
 }
 
 function constructToSaveJobs(jobs, server) {

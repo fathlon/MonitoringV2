@@ -63,8 +63,6 @@ a:hover {
   margin-left: 25px;
   box-shadow: 5px 5px 5px #d2f476;
   border-radius: 1px;
-/* Firefox 3.6 and earlier */
-  -moz-border-radius: 1px;
 }
 .menuItem a {
   text-decoration: none;
@@ -107,6 +105,10 @@ a:hover {
 }
 #failureList li div {
   height: 35px;
+}
+#failureList a {
+  position: relative;
+  top: 2px;
 }
 #serverList {
   margin: 10px 0;

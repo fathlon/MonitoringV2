@@ -13,7 +13,7 @@
 .notice-item {
 	height: 100%;
 	background: #333;
-	-moz-border-radius: 6px;
+	border-radius: 6px;
 	-webkit-border-radius: 6px;
 	color: #eee;
 	padding: 0px 6px;

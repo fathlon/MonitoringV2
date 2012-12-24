@@ -25,7 +25,9 @@ $(function() {
 			url: '/save',
 			data: { jobs: selectedJobs, server: selectedServer},
 			error: function(err) {
-				flashErrorMessage(err);
+				for (var i = 0, len = err.length; i < len; i++) {
+					flashErrorMessage('Error: ' + err[i]);
+				}
 			},
 			success: function(data) {
 				for (var i = 0, len = data.length; i < len; i++) {
@@ -54,7 +56,9 @@ function removeJob(job) {
 		type: 'GET',
 		url: '/delete/' + job.id,
 		error: function(err) {
-			flashErrorMessage(err);
+			for (var i = 0, len = err.length; i < len; i++) {
+				flashErrorMessage('Error: ' + err[i]);
+			}
 		},
 		success: function(data) {
 			flashMessage(job.id + ' removed.');
