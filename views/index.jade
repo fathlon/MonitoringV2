@@ -5,8 +5,9 @@ block content
 
   #serverList.header
     .inLine(style='margin-right: 20px;') Monitoring:
-    each serverName in monitoredServers
-      .inLine.serverName.passed #{serverName}
+    each server in monitoredServers
+      .inLine.serverName
+        a(href=server.url, class=server.status, target='_blank') #{server.name}
 
   hr.clear
 

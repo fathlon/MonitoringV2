@@ -49,7 +49,7 @@ function errorHandler(err, req, res, next) {
 
 
 /**
- * Variables
+ * Constant Variables
  */
 var serverMap = {};
 
@@ -65,9 +65,11 @@ serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 
 serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};*/
 
 var serverMapKeys = Object.keys(serverMap);
+var serverInfoList = [];
 var feedCacheMap = {};
 var jenkinsFailureType = ['red', 'red_anime', 'yellow'];
 var customTimeout = 10000;
+var failedFeedIndicator = 'FF';
 
 /**
  * Routing
@@ -80,66 +82,32 @@ app.get('/', function(req, res) {
 });
 
 app.get('/index', function(req, res) {
-	/*
-    async.auto({
-		getAllFeed: function(callback)	{
-			async.map(serverMapKeys, getFeed, function(err, allFeed){
-				if(err) { callback(err); }
-				callback(null, allFeed);
-			});
-		},
-		getAllDBJobs: function(callback){
-			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs){
-				if(err) { callback(err); }
-				callback(null, allDBJobs);
-			});
-		},
-		flagFailureJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
-			var failureJobs = [];
-			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
-				var feed = results.getAllFeed[i];
-				var dbJob = results.getAllDBJobs[i];
-				
-				for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
-					var feedJob = feed.jobs[j];
-					var feedType = feed.type;
-					if(dbJob.indexOf(feedJob.name) > -1){					
-						if(feedType === 'jenkins') {
-							if(feedJob.color === 'red' || feedJob.color === 'red_anime') {
-								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
-							}
-						} else if(feedType === 'cruisecontrol') {
-							if(feedJob.result === 'failed') {
-								failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
-							}
-						}
-					}
-				}
-			}
-			callback(null, failureJobs);
-		}],
-		createFailureJobs: ['flagFailureJobs', function(callback, results) {
-			async.map(results.flagFailureJobs, createFailedJob, function(err, failedJobs){
-				if(err) { callback(err); }
-				callback(null, failedJobs);
-			});
-		}]
-	},
-	function(err, results) {	
-		if(err) { res.send(500, { error: err }); }
 
+	async.map(serverMapKeys, getFeed, function(err, allFeed){
+		// if(!err) {
+			serverInfoList = [];
+
+			for (var i = 0, len = allFeed.length; i < len; i++) {
+				var feed = allFeed[i];
+				var serverUrl = constructUrl(serverMap[feed.name]);			
+				var status = 'down';
+			
+				if(feed.jobs != failedFeedIndicator) {
+					status = 'green';				
+				}
+			
+				serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
+			}
+		// }
+		
 		res.render('index', {
-			title: 'Monitoring Status',
-			monitoredServers: serverMapKeys,
-			failureJobs: []	//results.createFailureJobs
-		});
+	        title: 'Monitoring Status',
+	        monitoredServers: serverInfoList,
+	        failureJobs: []	//Clientside retrieval by async
+	    });
 	});
-    */
-    res.render('index', {
-        title: 'Monitoring Status',
-        monitoredServers: serverMapKeys,
-        failureJobs: []	//results.createFailureJobs
-    });
+	
+    
 });
 
 app.get('/list', function(req, res) {
@@ -197,7 +165,7 @@ app.get('/failures', function(req, res){
 				var feed = results.getAllFeed[i];
 				var dbJob = results.getAllDBJobs[i];
 				
-				if(feed != 'FF') {
+				if(feed.jobs != failedFeedIndicator) {
 					for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
 						var feedJob = feed.jobs[j];
 						var feedType = feed.type;
@@ -330,7 +298,7 @@ function getFeed(serverName, callback) {
 	
 	req.on('error', function(e) {
 		console.log('Error retrieving feed from ' + server.name + ': ' + e.message);
-		callback(null, 'FF'); //Feed Failed
+		callback(null, { name: serverName, type: server.type, jobs: failedFeedIndicator }); //Feed Failed
 	});
 	
 	req.end();

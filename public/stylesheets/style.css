@@ -18,11 +18,10 @@ h3 {
 hr {
   margin-top: 10px;
 }
-a {
-  text-decoration: none;
-}
+a,
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  cursor: pointer;
 }
 /*
  * Header style
@@ -69,7 +68,6 @@ a:hover {
   color: #fff;
 }
 .menuItem a:hover {
-  text-decoration: none;
   font-weight: bold;
 }
 .menuItem a:visited {
@@ -108,7 +106,7 @@ a:hover {
 }
 #failureList a {
   position: relative;
-  top: 2px;
+  top: 3px;
 }
 #serverList {
   margin: 10px 0;
@@ -116,6 +114,7 @@ a:hover {
 }
 .serverName {
   margin: 0 10px;
+  font-weight: bold;
 }
 .deleteImg {
   margin: 0 10px;
@@ -142,9 +141,11 @@ a:hover {
 .yellow {
   color: #ff0;
 }
-.passed {
+.green {
   color: #74c90c;
-  font-weight: bold;
+}
+.down {
+  color: #808080;
 }
 #floatingSubmit {
   position: fixed;
