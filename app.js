@@ -8,6 +8,7 @@ var express = require('express'),
 	path = require('path'),
 	async = require('async');	
 
+//require('./redirectConsole.js');
 
 /**
  * Server & DB setup
@@ -36,7 +37,7 @@ app.configure('development', function(){
 var nStore = require('nstore');
 nStore = nStore.extend(require('nstore/query')());
 
-var db = nStore.new('db/data.db', function(){
+var db = nStore.new(__dirname + 'db/data.db', function(){
 	http.createServer(app).listen(app.get('port'), function(){
 		console.log("Express server listening on port " + app.get('port'));
 	});	
