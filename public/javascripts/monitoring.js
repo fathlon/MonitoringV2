@@ -1,5 +1,6 @@
 $(function() {
     // code here
+	checkServers();
 	loadFailures();
 
 	$('#addForm').submit(function(event) {
@@ -41,6 +42,10 @@ $(function() {
 
 function loadFailures() {
 	$('#failureList').load('/failures');
+}
+
+function checkServers() {
+	$('#serverList').load('/serverstatus');
 }
 
 function retrieveJobs() {

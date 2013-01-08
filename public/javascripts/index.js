@@ -33,4 +33,8 @@ $(document).ready(function() {
 	setInterval(function() {
 		loadFailures();
 	}, 300000);
+	
+	setInterval(function() {
+		checkServers();
+	}, 600000);
 });

@@ -4,10 +4,7 @@ block content
   script(type='text/javascript', src='/javascripts/index.js')
 
   #serverList.header
-    .inLine(style='margin-right: 20px;') Monitoring:
-    each server in monitoredServers
-      .inLine.serverName
-        a(href=server.url, class=server.status, target='_blank') #{server.name}
+    include includes/server_list.jade
 
   hr.clear
 

@@ -68,7 +68,7 @@ serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
 var feedCacheMap = {};
-var jenkinsFailureType = ['red', 'red_anime', 'yellow'];
+var jenkinsFailureType = ['red', 'red_anime', 'yellow', 'aborted'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
 
@@ -83,32 +83,11 @@ app.get('/', function(req, res) {
 });
 
 app.get('/index', function(req, res) {
-
-	async.map(serverMapKeys, getFeed, function(err, allFeed){
-		// if(!err) {
-			serverInfoList = [];
-
-			for (var i = 0, len = allFeed.length; i < len; i++) {
-				var feed = allFeed[i];
-				var serverUrl = constructUrl(serverMap[feed.name]);			
-				var status = 'down';
-			
-				if(feed.jobs != failedFeedIndicator) {
-					status = 'green';				
-				}
-			
-				serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
-			}
-		// }
-		
-		res.render('index', {
-	        title: 'Monitoring Status',
-	        monitoredServers: serverInfoList,
-	        failureJobs: []	//Clientside retrieval by async
-	    });
-	});
-	
-    
+	res.render('index', {
+        title: 'Monitoring Status',
+        monitoredServers: [], //Clientside retrieval by async
+        failureJobs: []	//Clientside retrieval by async
+    });
 });
 
 app.get('/list', function(req, res) {
@@ -143,6 +122,28 @@ app.get('/save', function(req, res){
 		if(err) { res.send(err); }
 		
 		res.send(results);
+	});
+});
+
+app.get('/serverstatus', function(req, res) {
+	async.map(serverMapKeys, getFeed, function(err, allFeed){
+		serverInfoList = [];
+
+		for (var i = 0, len = allFeed.length; i < len; i++) {
+			var feed = allFeed[i];
+			var serverUrl = constructUrl(serverMap[feed.name]);			
+			var status = 'down';
+		
+			if(feed.jobs != failedFeedIndicator) {
+				status = 'green';				
+			}
+		
+			serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
+		}
+		
+		res.render('includes/server_list', {
+	        monitoredServers: serverInfoList,
+	    });
 	});
 });
 
