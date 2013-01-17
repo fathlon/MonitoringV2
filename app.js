@@ -37,7 +37,7 @@ app.configure('development', function(){
 var nStore = require('nstore');
 nStore = nStore.extend(require('nstore/query')());
 
-var db = nStore.new(__dirname + 'db/data.db', function(){
+var db = nStore.new(__dirname + '/db/data.db', function(){
 	http.createServer(app).listen(app.get('port'), function(){
 		console.log("Express server listening on port " + app.get('port'));
 	});	
@@ -53,22 +53,24 @@ function errorHandler(err, req, res, next) {
  * Constant Variables
  */
 var serverMap = {};
-
+/*
 serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', server: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', server: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['winbob'] = {name: 'winbob', path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 serverMap['linbob'] = {name: 'linbob', path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
-/*
+*/
 serverMap['jenkins'] = {name: 'jenkins', path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
 serverMap['virgon'] = {name: 'virgon', path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
 serverMap['leonis'] = {name: 'leonis', path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
 serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
-serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};*/
+serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
+
 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
 var feedCacheMap = {};
-var jenkinsFailureType = ['red', 'red_anime', 'yellow', 'aborted'];
+var jenkinsFailureType = ['red', 'red_anime', 'yellow', 'yellow_anime', 'aborted', 'aborted_anime'];
+var jenkinsBuildingType = ['blue_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
 
@@ -142,7 +144,7 @@ app.get('/serverstatus', function(req, res) {
 		}
 		
 		res.render('includes/server_list', {
-	        monitoredServers: serverInfoList,
+	        monitoredServers: serverInfoList
 	    });
 	});
 });
@@ -173,7 +175,7 @@ app.get('/failures', function(req, res){
 						var feedType = feed.type;
 						if(dbJob.indexOf(feedJob.name) > -1){					
 							if(feedType === 'jenkins') {
-								if(jenkinsFailureType.indexOf(feedJob.color) != -1) {
+								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
 									failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
 								}
 							} else if(feedType === 'cruisecontrol') {
@@ -351,7 +353,11 @@ function getFailedJobFeed(server, job, callback) {
 		res.on('end', function(){
 			var jobFeed = JSON.parse(contentString);
 			job['status'] = jobFeed.color;
-			job['url'] = jobFeed.lastFailedBuild.url;
+			if (jenkinsFailureType.indexOf(feedJob.color) != -1) {
+				job['url'] = jobFeed.lastUnsuccessfulBuild.url;
+			} else {
+				job['url'] = jobFeed.lastSuccessfulBuild.url;
+			}
 			callback(null, job);
 		});	
 		

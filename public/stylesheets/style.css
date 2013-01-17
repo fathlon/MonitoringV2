@@ -127,25 +127,38 @@ a:hover {
 }
 .red,
 .red_anime,
-.yellow {
+.yellow,
+.yellow_anime,
+.aborted,
+.aborted_anime,
+.blue_anime {
   font-weight: bold;
   font-size: 30px;
+}
+.red_anime,
+.yellow_anime,
+.aborted_anime,
+.blue_anime {
+  text-decoration: blink;
 }
 .red,
 .red_anime {
   color: #f00;
 }
-.red_anime {
-  text-decoration: blink;
-}
-.yellow {
+.yellow,
+.yellow_anime {
   color: #ff0;
+}
+.blue_anime {
+  color: #00f;
+}
+.down,
+.aborted,
+.aborted_anime {
+  color: #808080;
 }
 .green {
   color: #74c90c;
-}
-.down {
-  color: #808080;
 }
 #floatingSubmit {
   position: fixed;
