@@ -69,8 +69,8 @@ serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
 var feedCacheMap = {};
-var jenkinsFailureType = ['red', 'red_anime', 'yellow', 'yellow_anime', 'aborted', 'aborted_anime'];
-var jenkinsBuildingType = ['blue_anime'];
+var jenkinsFailureType = ['red', 'yellow', 'aborted'];
+var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
 
@@ -149,7 +149,7 @@ app.get('/serverstatus', function(req, res) {
 	});
 });
 
-app.get('/failures', function(req, res){
+app.get('/listBuilds', function(req, res){
 	async.auto({
 		getAllFeed: function(callback)	{
 			async.map(serverMapKeys, getFeed, function(err, allFeed){
@@ -163,8 +163,8 @@ app.get('/failures', function(req, res){
 				callback(null, allDBJobs);
 			});
 		},
-		flagFailureJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
-			var failureJobs = [];
+		flagJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
+			var jobsToList = [];
 			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
 				var feed = results.getAllFeed[i];
 				var dbJob = results.getAllDBJobs[i];
@@ -176,23 +176,23 @@ app.get('/failures', function(req, res){
 						if(dbJob.indexOf(feedJob.name) > -1){					
 							if(feedType === 'jenkins') {
 								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
-									failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
 								}
 							} else if(feedType === 'cruisecontrol') {
 								if(feedJob.result === 'failed') {
-									failureJobs.push({ serverName: feed.name, jobName: feedJob.name });
+									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
 								}
 							}
 						}
 					}
 				}
 			}
-			callback(null, failureJobs);
+			callback(null, jobsToList);
 		}],
-		createFailureJobs: ['flagFailureJobs', function(callback, results) {
-			async.map(results.flagFailureJobs, createFailedJob, function(err, failedJobs){
+		createListJobs: ['flagJobs', function(callback, results) {
+			async.map(results.flagJobs, createFailedJob, function(err, listedJobs){
 				if(err) { callback(err); }
-				callback(null, failedJobs);
+				callback(null, listedJobs);
 			});
 		}]
 	},
@@ -200,7 +200,7 @@ app.get('/failures', function(req, res){
 		if(err) { res.send(500, { error: err }); }
 
 		res.render('includes/job_failures', {
-			failureJobs: results.createFailureJobs
+			failureJobs: results.createListJobs
 		});
 	});
 });
@@ -356,7 +356,7 @@ function getFailedJobFeed(server, job, callback) {
 			if (jenkinsFailureType.indexOf(feedJob.color) != -1) {
 				job['url'] = jobFeed.lastUnsuccessfulBuild.url;
 			} else {
-				job['url'] = jobFeed.lastSuccessfulBuild.url;
+				job['url'] = jobFeed.lastBuild.url;
 			}
 			callback(null, job);
 		});	

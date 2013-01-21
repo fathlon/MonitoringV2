@@ -31,7 +31,7 @@ $(document).ready(function() {
 	}, 1000);
 	
 	setInterval(function() {
-		loadFailures();
+		loadBuilds();
 	}, 300000);
 	
 	setInterval(function() {

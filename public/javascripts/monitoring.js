@@ -1,7 +1,7 @@
 $(function() {
     // code here
 	checkServers();
-	loadFailures();
+	loadBuilds();
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -40,8 +40,8 @@ $(function() {
 	});
 });
 
-function loadFailures() {
-	$('#failureList').load('/failures');
+function loadBuilds() {
+	$('#failureList').load('/listBuilds');
 }
 
 function checkServers() {
