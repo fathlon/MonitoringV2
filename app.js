@@ -353,7 +353,7 @@ function getFailedJobFeed(server, job, callback) {
 		res.on('end', function(){
 			var jobFeed = JSON.parse(contentString);
 			job['status'] = jobFeed.color;
-			if (jenkinsFailureType.indexOf(feedJob.color) != -1) {
+			if (jenkinsFailureType.indexOf(jobFeed.color) != -1) {
 				job['url'] = jobFeed.lastUnsuccessfulBuild.url;
 			} else {
 				job['url'] = jobFeed.lastBuild.url;
