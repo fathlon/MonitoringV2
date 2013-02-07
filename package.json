@@ -11,6 +11,7 @@
     "stylus": "0.28.2",
     "nstore": "0.5.1",
     "async": "0.1.22",
-	"forever-monitor": "1.1.0"
+	"forever-monitor": "1.1.0",
+    "moment": "1.7.2"
   }
 }
