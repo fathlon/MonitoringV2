@@ -6,18 +6,19 @@ var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
 	path = require('path'),
-	async = require('async');	
+	async = require('async'),
+    moment = require('moment');	
 
 //require('./redirectConsole.js');
 
 /**
- * Server & DB setup
+ * Server setup
  */
 
 var app = express();
 
 app.configure(function(){
-	app.set('port', process.env.PORT || 3000);
+	app.set('port', process.env.PORT || 5000);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
 	app.use(express.favicon());
@@ -34,20 +35,33 @@ app.configure('development', function(){
 	app.use(express.errorHandler());
 });
 
-var nStore = require('nstore');
-nStore = nStore.extend(require('nstore/query')());
-
-var db = nStore.new(__dirname + '/db/data.db', function(){
-	http.createServer(app).listen(app.get('port'), function(){
-		console.log("Express server listening on port " + app.get('port'));
-	});	
-});
-
 function errorHandler(err, req, res, next) {
   res.status(500);
   res.send('error', { error: err });
 }
 
+/**
+ * DB setup
+ */
+
+var nStore = require('nstore');
+nStore = nStore.extend(require('nstore/query')());
+
+var db = nStore.new(__dirname + '/db/data.db', function(){
+    console.log('Data DB loaded.');
+});
+
+var reminderDb = nStore.new(__dirname + '/db/reminderData.db', function(){
+	console.log('Reminder DB loaded.');
+});
+
+/**
+ * Server startup
+ */
+ 
+http.createServer(app).listen(app.get('port'), function(){
+    console.log("Express server listening on port " + app.get('port'));
+});	
 
 /**
  * Constant Variables
@@ -262,6 +276,12 @@ app.get('/delete/:jobName', function(req, res){
 app.get('/clear/cache', function(req, res) {
     feedCacheMap = {};
     res.send(200);
+});
+
+app.get('/reminder/list', function(req, res) {
+    res.render('reminder/rList', {
+        title: 'Reminder List'
+    });
 });
 
 
