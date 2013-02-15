@@ -2,6 +2,7 @@ $(function() {
     // code here
 	checkServers();
 	loadBuilds();
+    shoutOut('what');
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -99,4 +100,8 @@ function flashErrorMessage(message) {
 		stay: true,
 		type: 'error'
     });
+}
+
+function shoutOut(message) {
+    speak.play(message);
 }
