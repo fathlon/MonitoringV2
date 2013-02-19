@@ -4,8 +4,10 @@ block content
   script(type='text/javascript', src='/javascripts/calendar.js')
   h3= title
   
-  input(type='radio', name='recurring', value='Yes') Yes
-  input(type='radio', name='recurring', value='No') No
+  input(type='radio', name='recurring', value='Yes')
+  | Yes
+  input(type='radio', name='recurring', value='No', checked)
+  | No
   
   input(type='text')#dateTime
   img(src='/images/calendar.gif')
