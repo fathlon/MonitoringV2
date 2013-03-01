@@ -284,6 +284,18 @@ app.get('/reminder/list', function(req, res) {
     });
 });
 
+app.post('/reminder/add', function(req, res) {
+	console.log('post called');
+	
+	console.log('1-' + req.body.recurring);
+	
+	console.log(moment(req.body.datetime, 'DD/MM/YYYY HH:mm'));
+	console.log('1-' + req.body.frequency);
+    res.render('reminder/rList', {
+        title: 'Reminder List'
+    });
+});
+
 
 /**
  * Util Functions

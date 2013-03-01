@@ -2,11 +2,14 @@ $(function() {
     // code here
 	checkServers();
 	loadBuilds();
-    shoutOut('what');
+    //shoutOut('what');
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
 		event.preventDefault();
+		
+		var method = $('#addForm').attr('method');
+		var action = $('#addForm').attr('action');
 		
 		var form = $(this);
 		var checkedJobsInput = form.find('input:checkbox[name=jobsCb]:checked');
@@ -23,8 +26,8 @@ $(function() {
 		}
 		
 		$.ajax({
-			type: 'GET',
-			url: '/save',
+			type: method,
+			url: action,
 			data: { jobs: selectedJobs, server: selectedServer},
 			error: function(err) {
 				for (var i = 0, len = err.length; i < len; i++) {
@@ -37,6 +40,25 @@ $(function() {
 				}
 				$('#addJobHolder').load('/get/' + selectedServer);
 			}
+		});
+	});
+	
+	$('#addReminder').submit(function() {
+		/* Prevent form from submitting normally */
+		event.preventDefault();
+		
+		var method = $('#addReminder').attr('method');
+		var action = $('#addReminder').attr('action');
+		var data = $(this).serialize();
+		
+		//alert($(this).serialize());
+		
+		$.ajax({
+			type: method,
+			url: action,
+			data: data,
+			success: function(data) { },
+			error: function(err) { flashErrorMessage('Error: ' + err); }
 		});
 	});
 });

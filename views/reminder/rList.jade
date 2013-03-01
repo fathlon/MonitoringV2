@@ -4,10 +4,30 @@ block content
   script(type='text/javascript', src='/javascripts/calendar.js')
   h3= title
   
-  input(type='radio', name='recurring', value='Yes')
-  | Yes
-  input(type='radio', name='recurring', value='No', checked)
-  | No
+  form(action='/reminder/add', id='addReminder', method='post')
+    | Recurring : 
+    input(type='radio', name='recurring', value='yes')
+    | Yes
+    input(type='radio', name='recurring', value='no', checked)
+    | No
   
-  input(type='text')#dateTime
-  img(src='/images/calendar.gif')
+    br
+  
+    #rfrequency
+      | Frequency :
+      input(type='radio', name='frequency', value='annually')
+      | Annually
+      input(type='radio', name='frequency', value='monthly')
+      | Monthly
+      input(type='radio', name='frequency', value='weekly')
+      | Weekly
+      input(type='radio', name='frequency', value='daily', checked)
+      | Daily
+  
+    | Date : 
+    input(type='text', name='datetime', value='', readonly)#dateTime
+    img(src='/images/calendar.gif')
+  
+    br
+  
+    input(type='submit')
