@@ -1,15 +1,15 @@
-extends layout
+extends ../layout
 
 block content
   link(rel='stylesheet', href='/stylesheets/clock.css')
   script(type='text/javascript', src='/javascripts/index.js')
 
   #serverList.header
-    include includes/server_list.jade
+    include ../includes/server_list.jade
 
   hr.clear
 
-  include includes/clock.jade
+  include ../includes/clock.jade
   #failureList
-    include includes/job_failures.jade
+    include ../includes/job_failures.jade
   

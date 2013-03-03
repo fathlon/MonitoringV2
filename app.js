@@ -87,6 +87,7 @@ var jenkinsFailureType = ['red', 'yellow', 'aborted'];
 var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
+var dateFormat = 'DD/MM/YYYY HH:mm';
 
 /**
  * Routing
@@ -99,7 +100,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/index', function(req, res) {
-	res.render('index', {
+	res.render('monitor/index', {
         title: 'Monitoring Status',
         monitoredServers: [], //Clientside retrieval by async
         failureJobs: []	//Clientside retrieval by async
@@ -110,7 +111,7 @@ app.get('/list', function(req, res) {
 	retrieveDBJobs(null, function(err, jobs) {
 		if (err) { res.send(500, { error: err }); }
 
-		res.render('list', {
+		res.render('monitor/list', {
 			title: 'Monitored Jobs',
 			jobs: jobs
 		});
@@ -118,7 +119,7 @@ app.get('/list', function(req, res) {
 });
 
 app.get('/add', function(req, res){
-	res.render('add', {
+	res.render('monitor/add', {
 		title: 'Choose jobs to monitor:',
         availableServers: serverMapKeys,
 		jobs: []
@@ -286,14 +287,18 @@ app.get('/reminder/list', function(req, res) {
 
 app.post('/reminder/add', function(req, res) {
 	console.log('post called');
+	var rmdata = req.body;
+	rmdata.triggered = 'n';
 	
-	console.log('1-' + req.body.recurring);
+	console.log(rmdata);
+	console.log(moment(req.body.datetime, dateFormat));
 	
-	console.log(moment(req.body.datetime, 'DD/MM/YYYY HH:mm'));
-	console.log('1-' + req.body.frequency);
-    res.render('reminder/rList', {
-        title: 'Reminder List'
-    });
+	reminderDB.save(null, rmdata, function(err, key) {
+		if(err) { res.send(500, err); }
+
+		res.send(rmdata.name);
+	});
+    
 });
 
 

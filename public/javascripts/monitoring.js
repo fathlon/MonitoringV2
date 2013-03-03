@@ -42,25 +42,6 @@ $(function() {
 			}
 		});
 	});
-	
-	$('#addReminder').submit(function() {
-		/* Prevent form from submitting normally */
-		event.preventDefault();
-		
-		var method = $('#addReminder').attr('method');
-		var action = $('#addReminder').attr('action');
-		var data = $(this).serialize();
-		
-		//alert($(this).serialize());
-		
-		$.ajax({
-			type: method,
-			url: action,
-			data: data,
-			success: function(data) { },
-			error: function(err) { flashErrorMessage('Error: ' + err); }
-		});
-	});
 });
 
 function loadBuilds() {

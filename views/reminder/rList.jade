@@ -5,6 +5,8 @@ block content
   h3= title
   
   form(action='/reminder/add', id='addReminder', method='post')
+    | Name :
+    input(type='text', name='remindername', value='')
     | Recurring : 
     input(type='radio', name='recurring', value='yes')
     | Yes

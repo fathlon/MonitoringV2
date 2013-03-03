@@ -10,4 +10,25 @@ $(function() {
 			$('#rfrequency').show();
 		}
 	});
+	
+	$('#addReminder').submit(function() {
+		/* Prevent form from submitting normally */
+		event.preventDefault();
+		
+		if($('#dateTime').val() != '') {
+			var method = $('#addReminder').attr('method');
+			var action = $('#addReminder').attr('action');
+			var data = $(this).serialize();
+
+			//alert($(this).serialize());
+
+			$.ajax({
+				type: method,
+				url: action,
+				data: data,
+				success: function(data) { alert('good');},
+				error: function(err) { flashErrorMessage('Error: ' + err); }
+			});
+		}
+	});
 });
