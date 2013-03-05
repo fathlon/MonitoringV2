@@ -105,15 +105,39 @@ function flashErrorMessage(message) {
     });
 }
 
-function shoutOut(messages) {
-    if(messages instanceof Array) {
-        for (var i = 0, len = messages.length - 1; i < len; i++) {
-            //shout(messages[i].name, shout(messages[i+1].name));
-        }
-    }
-    //speak.play(message);
+function processJobsShoutout(jobs) {
+	var red_prefix = 'Failed job', yellow_prefix = 'Partial failure', aborted_prefix = 'Cancelled job';
+	var messages = [];
+	for (var i = 0, len = jobs.length; i < len; i++) {
+		var job = jobs[i];
+		if(job.status.startsWith('red')) {
+			messages.push(red_prefix + ', ' + job.name);
+		} else if (job.status.startsWith('yellow')) {
+			messages.push(yellow_prefix + ', ' + job.name);
+		} else if (job.status.startsWith('aborted')) {
+			messages.push(aborted_prefix + ', ' + job.name);
+		}
+	}
+	shout(messages);
 }
 
-function shout(message, next_message) {
-    speak.play(message);
+function shout(messages) {
+	var vconfig = {};
+	vconfig.speed = 150;
+	vconfig.wordgap = 10;
+	vconfig.pitch = 30;
+	
+	if(messages instanceof Array) {
+		speak.play(messages.pop(), vconfig, function() {
+			if(messages.length > 0) {
+				shout(messages);
+			}
+		});
+	} else {
+		speak.play(message, vconfig);
+	}
 }
+
+String.prototype.startsWith = function (str) {
+	return this.indexOf(str) == 0;
+};
