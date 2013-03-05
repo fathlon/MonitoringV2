@@ -291,11 +291,11 @@ app.post('/reminder/add', function(req, res) {
 	rmdata.triggered = 'n';
 	
 	console.log(rmdata);
-	console.log(moment(req.body.datetime, dateFormat));
+	//console.log(moment(req.body.datetime, dateFormat));
 	
-	reminderDB.save(null, rmdata, function(err, key) {
+	reminderDb.save(null, rmdata, function(err, key) {
 		if(err) { res.send(500, err); }
-
+        console.log('key is ' +key);
 		res.send(rmdata.name);
 	});
     

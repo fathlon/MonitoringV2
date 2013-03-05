@@ -26,7 +26,7 @@ $(function() {
 				type: method,
 				url: action,
 				data: data,
-				success: function(data) { alert('good');},
+				success: function(data) { flashErrorMessage('good');},
 				error: function(err) { flashErrorMessage('Error: ' + err); }
 			});
 		}

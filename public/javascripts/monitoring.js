@@ -105,6 +105,15 @@ function flashErrorMessage(message) {
     });
 }
 
-function shoutOut(message) {
+function shoutOut(messages) {
+    if(messages instanceof Array) {
+        for (var i = 0, len = messages.length - 1; i < len; i++) {
+            //shout(messages[i].name, shout(messages[i+1].name));
+        }
+    }
+    //speak.play(message);
+}
+
+function shout(message, next_message) {
     speak.play(message);
 }
