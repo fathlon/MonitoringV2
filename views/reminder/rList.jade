@@ -1,29 +1,29 @@
 extends ../layout
 
 block content
-  script(type='text/javascript', src='/javascripts/calendar.js')
+  script(type='text/javascript', src='/javascripts/reminder.js')
   h3= title
   
   form(action='/reminder/add', id='addReminder', method='post')
     | Name :
-    input(type='text', name='remindername', value='')
+    input(type='text', name='rname', value='')
     | Recurring : 
-    input(type='radio', name='recurring', value='yes')
+    input(type='radio', name='recurring', value='Yes')
     | Yes
-    input(type='radio', name='recurring', value='no', checked)
+    input(type='radio', name='recurring', value='No', checked)
     | No
   
     br
   
     #rfrequency
       | Frequency :
-      input(type='radio', name='frequency', value='annually')
+      input(type='radio', name='frequency', value='Annually')
       | Annually
-      input(type='radio', name='frequency', value='monthly')
+      input(type='radio', name='frequency', value='Monthly')
       | Monthly
-      input(type='radio', name='frequency', value='weekly')
+      input(type='radio', name='frequency', value='Weekly')
       | Weekly
-      input(type='radio', name='frequency', value='daily', checked)
+      input(type='radio', name='frequency', value='Daily', checked)
       | Daily
   
     | Date : 
@@ -33,3 +33,6 @@ block content
     br
   
     input(type='submit')
+
+    #reminderHolder
+      include ../includes/reminder_listing.jade

@@ -26,7 +26,10 @@ $(function() {
 				type: method,
 				url: action,
 				data: data,
-				success: function(data) { flashErrorMessage('good');},
+				success: function(data) {
+					alert(data);
+					flashMessage(data + ' saved.');
+				},
 				error: function(err) { flashErrorMessage('Error: ' + err); }
 			});
 		}

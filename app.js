@@ -280,23 +280,24 @@ app.get('/clear/cache', function(req, res) {
 });
 
 app.get('/reminder/list', function(req, res) {
-    res.render('reminder/rList', {
-        title: 'Reminder List'
-    });
+	reminderDb.find({triggered: 'n'}, function(err, results) {
+	    res.render('reminder/rList', {
+	        title: 'Reminder List',
+			reminders: results
+	    });		
+	});
 });
 
 app.post('/reminder/add', function(req, res) {
-	console.log('post called');
 	var rmdata = req.body;
 	rmdata.triggered = 'n';
-	
-	console.log(rmdata);
+
 	//console.log(moment(req.body.datetime, dateFormat));
 	
 	reminderDb.save(null, rmdata, function(err, key) {
 		if(err) { res.send(500, err); }
-        console.log('key is ' +key);
-		res.send(rmdata.name);
+
+		res.send(rmdata.rname);
 	});
     
 });

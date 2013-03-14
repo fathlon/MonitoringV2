@@ -1,0 +1,15 @@
+#reminderContent
+  table.rtable
+    tr
+      th.rtdel
+      th.rtname Name
+      th.rtfreq Frequency
+      th.rtrecur Recurring
+      th.rtdate Date
+      each reminder in reminders
+        tr
+          td: img(src='/images/delete.png', id=reminder, class='deleteImg')
+          td #{reminder.rname}
+          td #{reminder.frequency}
+          td #{reminder.recurring}
+          td #{reminder.datetime}
