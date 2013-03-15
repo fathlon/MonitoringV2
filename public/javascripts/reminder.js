@@ -20,15 +20,13 @@ $(function() {
 			var action = $('#addReminder').attr('action');
 			var data = $(this).serialize();
 
-			//alert($(this).serialize());
-
 			$.ajax({
 				type: method,
 				url: action,
 				data: data,
 				success: function(data) {
-					alert(data);
 					flashMessage(data + ' saved.');
+                    $('#reminderHolder').load('/reminder/list #reminderContent');
 				},
 				error: function(err) { flashErrorMessage('Error: ' + err); }
 			});

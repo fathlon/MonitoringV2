@@ -291,15 +291,24 @@ app.get('/reminder/list', function(req, res) {
 app.post('/reminder/add', function(req, res) {
 	var rmdata = req.body;
 	rmdata.triggered = 'n';
-
 	//console.log(moment(req.body.datetime, dateFormat));
 	
 	reminderDb.save(null, rmdata, function(err, key) {
 		if(err) { res.send(500, err); }
-
 		res.send(rmdata.rname);
 	});
-    
+});
+
+app.get('/reminder/flagReminders', function(req, res) {
+    reminderDb.find({triggered: 'n'}, function(err, results) {
+        //res
+    });
+    console.log(moment().format(dateFormat));
+    //missed reminders
+    var currDatetime = moment().format(dateFormat);
+    reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
+        //res
+    });
 });
 
 
