@@ -306,9 +306,9 @@ app.get('/reminder/flagReminders', function(req, res) {
     console.log(moment().format(dateFormat));
     //missed reminders
     var currDatetime = moment().format(dateFormat);
-    reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
+    //reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
         //res
-    });
+    //});
 });
 
 

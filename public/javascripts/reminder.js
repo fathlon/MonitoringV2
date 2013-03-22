@@ -1,8 +1,15 @@
 $(function() {
+    /*
     var myCalendar = new dhtmlXCalendarObject('dateTime');
     myCalendar.setWeekStartDay(7);
     myCalendar.setDateFormat('%d/%m/%Y %H:%i');
-	
+	*/
+    $('#date').datepicker();
+    
+    $('#time').timepicker({
+        stepMinute: 5
+    });
+    
 	$('input[name=recurring]').change(function() {
 		if($(this).val() == 'no') {
 			$('#rfrequency').hide();
