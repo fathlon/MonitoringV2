@@ -5,7 +5,7 @@ block content
   h3= title
   
   form(action='/reminder/add', id='addReminder', method='post')
-    | Name :
+    | Name : 
     input(type='text', name='rname', value='')
     | Recurring : 
     input(type='radio', name='recurring', value='Yes')
@@ -16,7 +16,7 @@ block content
     br
   
     #rfrequency
-      | Frequency :
+      | Frequency : 
       input(type='radio', name='frequency', value='Annually')
       | Annually
       input(type='radio', name='frequency', value='Monthly')
@@ -25,11 +25,25 @@ block content
       | Weekly
       input(type='radio', name='frequency', value='Daily', checked)
       | Daily
+
+    #rdow
+      | Day of Week : 
+      select(name='dow')#dow
+        option(value='Sun') Sun
+        option(value='Mon') Mon
+        option(value='Tue') Tue
+        option(value='Wed') Wed
+        option(value='Thu') Thu
+        option(value='Fri') Fri
+        option(value='Sat') Sat
   
-    | Date / Time : 
-    input(type='text', name='date', value='', readonly)#date
-    input(type='text', name='time', value='', readonly)#time
-    img(src='/images/calendar.gif')
+    #rdate
+      | Date : 
+      input(type='text', name='date', value='', readonly)#date
+
+    #rtime
+      | Time : 
+      input(type='text', name='time', value='', readonly)#time
   
     br
   
