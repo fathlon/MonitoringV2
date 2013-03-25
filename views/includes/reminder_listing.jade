@@ -7,9 +7,9 @@
       th.rtrecur Recurring
       th.rtdate Date
       th.rttime Time
-      each reminder in reminders
+      each reminder, rid in reminders
         tr
-          td: img(src='/images/delete.png', id=reminder, class='deleteImg')
+          td: img(src='/images/delete.png', class='deleteImg', onclick='removeReminder("#{rid}");')
           td #{reminder.rname}
           td #{reminder.frequency}
           td #{reminder.recurring}

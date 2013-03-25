@@ -267,7 +267,7 @@ app.get('/delete/:jobName', function(req, res){
 		if(err) { throw err;}
 		
 		delete feedCacheMap[doc.server];
-		db.remove(req.params.jobName, function(err) {
+		db.remove(key, function(err) {
 			if (err) { res.send(500, { error: err }); } 
 			res.send(200);
 		});
@@ -280,7 +280,7 @@ app.get('/clear/cache', function(req, res) {
 });
 
 app.get('/reminder/list', function(req, res) {
-	reminderDb.find({triggered: 'n'}, function(err, results) {
+	reminderDb.all(function(err, results) {
 	    res.render('reminder/rList', {
 	        title: 'Reminder List',
 			reminders: results
@@ -288,9 +288,19 @@ app.get('/reminder/list', function(req, res) {
 	});
 });
 
+app.get('/reminder/delete/:rid', function(req, res){
+	reminderDb.get(req.params.rid, function(err, doc, key){
+		if(err) { throw err;}
+		
+		reminderDb.remove(key, function(err) {
+			if (err) { res.send(500, { error: err }); } 
+			res.send(doc.rname);
+		});
+	});
+});
+
 app.post('/reminder/add', function(req, res) {
 	var rmdata = req.body;
-	rmdata.triggered = 'n';
 	//console.log(moment(req.body.datetime, dateFormat));
 	
 	reminderDb.save(null, rmdata, function(err, key) {
@@ -303,12 +313,14 @@ app.get('/reminder/flagReminders', function(req, res) {
     reminderDb.find({triggered: 'n'}, function(err, results) {
         //res
     });
-    console.log(moment().format(dateFormat));
+	console.log(moment());
+//    console.log(moment().format(dateFormat));
     //missed reminders
     var currDatetime = moment().format(dateFormat);
     //reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
         //res
     //});
+res.send();
 });
 
 
