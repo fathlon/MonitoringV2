@@ -87,7 +87,6 @@ var jenkinsFailureType = ['red', 'yellow', 'aborted'];
 var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
-var dateFormat = 'DD/MM/YYYY HH:mm';
 
 /**
  * Routing
@@ -309,14 +308,27 @@ app.post('/reminder/add', function(req, res) {
 	});
 });
 
+var dateFormat = 'DD/MM/YYYY';
+var timeFormat = 'HH:mm';
+{ fqc: 'Annually', fm: 'DD/MM' }
+{ fqc: 'Monthly', fm: 'DD' }
+{ fqc: 'Weekly', fm: 'ddd' }
+{ fqc: 'Daily' }
+
 app.get('/reminder/flagReminders', function(req, res) {
-    reminderDb.find({triggered: 'n'}, function(err, results) {
-        //res
+	console.log(moment().format(dateFormat));
+	console.log(moment().isSame(moment('27/03/2013', dateFormat), 'year'));
+	var oneOff = { recurring: 'No', time: moment().format(timeFormat), date: moment().format('DD/MM/YYYY') };
+	var annually = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Annually'};
+	var monthly = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Monthly'};
+	var weekly = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Weekly'};
+	var daily = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Daily'};
+	
+	reminderDb.find(oneOff, function(err, results) {
+        console.log(results);
     });
-	console.log(moment());
-//    console.log(moment().format(dateFormat));
+    
     //missed reminders
-    var currDatetime = moment().format(dateFormat);
     //reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
         //res
     //});

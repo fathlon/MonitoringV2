@@ -13,7 +13,6 @@ $(function() {
     });
     
 	$('input[name=recurring]').change(function() {
-		resetDateTime();
 		if($(this).val() == 'No') {
 			$('#rfrequency').hide();
 			toggleDateDisplayable('All');
@@ -69,7 +68,8 @@ function removeReminder(rid) {
 function toggleDateDisplayable(frequency) {
 	var dformat = 'dd/mm/yy';
 	var dowDisabled = true, 
-		dateDisabled = false;
+		dateDisabled = false,
+		freqDisabled = false;
 		
 	if (frequency == 'Annually') {
 		$('#rdate').show();
@@ -90,8 +90,10 @@ function toggleDateDisplayable(frequency) {
 	} else {
 		$('#rdate').show();
 		$('#rdow').hide();
+		freqDisabled = true;
 	}
 	resetDateTime();
+	$('input[name=frequency]').attr('disabled', freqDisabled);
 	$('#date').attr('disabled', dateDisabled);
 	$('#dow').attr('disabled', dowDisabled);
 	$('#date').datepicker('option', 'dateFormat', dformat);
