@@ -81,8 +81,7 @@ a:hover {
   min-height: 500px;
   clear: both;
 }
-#jobContent,
-#failureList {
+#jobContent {
   padding: 0;
   word-wrap: break-word;
 /* Safari and Chrome */
