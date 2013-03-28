@@ -29,12 +29,4 @@ $(document).ready(function() {
 	// Add a leading zero to the hours value
 	$("#hours").html(( hours < 10 ? "0" : "" ) + hours);
 	}, 1000);
-	
-	setInterval(function() {
-		loadBuilds();
-	}, 300000);
-	
-	setInterval(function() {
-		checkServers();
-	}, 600000);
 });

@@ -1,8 +1,8 @@
 $(function() {
-    // code here
 	checkServers();
 	loadBuilds();
-    //shoutOut('what');
+    $('#js-news').ticker();
+    //displayReminders();
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -42,10 +42,26 @@ $(function() {
 			}
 		});
 	});
+    
+ /*   setInterval(function() {
+		displayReminders();
+	}, 60000);
+   */ 
+    setInterval(function() {
+		loadBuilds();
+	}, 300000);
+	
+	setInterval(function() {
+		checkServers();
+	}, 600000);
 });
 
 function loadBuilds() {
 	$('#failureList').load('/listBuilds');
+}
+
+function displayReminders() {
+    $('#tickerHolder').load('/reminder/displayReminders');
 }
 
 function checkServers() {
@@ -125,7 +141,7 @@ function shout(messages) {
 	var vconfig = {};
 	vconfig.speed = 150;
 	vconfig.wordgap = 10;
-	vconfig.pitch = 30;
+	vconfig.pitch = 100;
 	
 	if(messages instanceof Array) {
 		speak.play(messages.pop(), vconfig, function() {

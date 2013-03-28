@@ -79,7 +79,6 @@ serverMap['leonis'] = {name: 'leonis', path: '/api/json', server: 'leonis', port
 serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
 serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
 
-
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
 var feedCacheMap = {};
@@ -87,6 +86,14 @@ var jenkinsFailureType = ['red', 'yellow', 'aborted'];
 var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
+
+var reminderComparison = {};
+reminderComparison['default'] = 'DD/MM/YYYY';
+reminderComparison['time'] = 'HH:mm';
+reminderComparison['Annually'] = 'DD/MM';
+reminderComparison['Monthly'] = 'DD';
+reminderComparison['Weekly'] = 'ddd';
+reminderComparison['Daily'] = '';
 
 /**
  * Routing
@@ -300,7 +307,6 @@ app.get('/reminder/delete/:rid', function(req, res){
 
 app.post('/reminder/add', function(req, res) {
 	var rmdata = req.body;
-	//console.log(moment(req.body.datetime, dateFormat));
 	
 	reminderDb.save(null, rmdata, function(err, key) {
 		if(err) { res.send(500, err); }
@@ -308,31 +314,45 @@ app.post('/reminder/add', function(req, res) {
 	});
 });
 
-var dateFormat = 'DD/MM/YYYY';
-var timeFormat = 'HH:mm';
-{ fqc: 'Annually', fm: 'DD/MM' }
-{ fqc: 'Monthly', fm: 'DD' }
-{ fqc: 'Weekly', fm: 'ddd' }
-{ fqc: 'Daily' }
-
-app.get('/reminder/flagReminders', function(req, res) {
-	console.log(moment().format(dateFormat));
-	console.log(moment().isSame(moment('27/03/2013', dateFormat), 'year'));
-	var oneOff = { recurring: 'No', time: moment().format(timeFormat), date: moment().format('DD/MM/YYYY') };
-	var annually = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Annually'};
-	var monthly = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Monthly'};
-	var weekly = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Weekly'};
-	var daily = {recurring: 'Yes', time: moment().format(timeFormat), frequency: 'Daily'};
-	
-	reminderDb.find(oneOff, function(err, results) {
-        console.log(results);
+app.get('/reminder/displayReminders', function(req, res) {
+    var reminderList = [];
+    var queryString = { time: moment().format(reminderComparison['time']) };
+    /*
+	reminderDb.find({recurring: 'Yes'}, function(err, results) {
+        for(key in results) {
+            var reminder = results[key];
+            if(reminder.recurring == 'Yes') {
+                var comparisonType = reminderComparison[reminder.frequency];
+                if(comparisonType != undefined) {
+                    if(comparisonType != '') {
+                        if(moment().format(comparisonType) == reminder.date) {
+                            reminderList.push(reminder);
+                        }
+                    } else { /* Daily frequency does not need date comparison 
+                        reminderList.push(reminder);
+                    }
+                }
+            } else {
+                if(moment().format(reminderComparison['default']) == reminder.date) {
+                    reminderList.push(reminder);
+                }
+            }
+        }
     });
-    
-    //missed reminders
-    //reminderDb.find({triggered: 'n', "datetime <": currDatetime}, function(err, results) {
-        //res
-    //});
-res.send();
+    */
+    reminderDb.all(function(err, results) {
+       for( k in results) {
+        reminderList.push(results[k]);
+       }
+	   res.render('includes/ticker', {
+            reminderList: reminderList
+        });
+	});
+    /*
+    res.render('includes/ticker', {
+        reminderList: reminderList
+    });
+    */
 });
 
 

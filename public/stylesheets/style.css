@@ -28,6 +28,7 @@ a:hover {
  */
 #header {
   min-height: 50px;
+  min-width: 800px;
   padding: 10px 20px;
   background-color: #2d2c2e;
 }

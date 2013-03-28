@@ -28,14 +28,14 @@
   margin-bottom: 20px;
 }
 
-ul {
+.clock ul {
   margin: 0 auto;
   padding: 0px;
   list-style: none;
   text-align: center;
 }
 
-ul li {
+.clock ul li {
   display: inline;
   font-size: 48px;
   text-align: center;

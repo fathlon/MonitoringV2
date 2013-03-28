@@ -1,0 +1,8 @@
+ul#js-news.js-hidden
+  if typeof reminderList != 'undefined'
+    each reminder in reminderList
+      li.news-item
+        a(href='#') #{reminder.rname}
+  else
+    li.news-item
+      a No reminders available.
