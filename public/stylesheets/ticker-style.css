@@ -1,25 +1,26 @@
 /* Ticker Styling */
 .ticker-wrapper.has-js {
-	margin: 20px;
+	margin: 20px 20px 5px 20px;
 	padding: 0px 20px;
-	height: 32px;
+	height: 50px;
 	display: block;
 	-webkit-border-radius: 15px;
 	-moz-border-radius: 15px;
 	border-radius: 15px;
 	background-color: #f8f0db;
-	font-size: 0.75em;
+	font-size: 1.1em;
 }
 .ticker {
-	width: 710px;
-	height: 23px;
+	width: 90%;
+	height: 40px;
 	display: block;
 	position: relative;
 	overflow: hidden;
 	background-color: #f8f0db;
+	margin-top: 4px;
 }
 .ticker-title {
-	padding-top: 9px;
+	padding-top: 8px;
 	color: #990000;
 	font-weight: bold;
 	background-color: #f8f0db;
@@ -49,7 +50,7 @@
 	color: #0D3059;
 }
 .ticker-swipe {
-	padding-top: 9px;
+	padding-top: 17px;
 	position: absolute;
 	top: 0px;
 	background-color: #f8f0db;

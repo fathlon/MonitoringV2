@@ -1,8 +1,12 @@
+if typeof reminderList != 'undefined' && reminderList.length != 0
+  script
+    processRemindersShoutout(!{JSON.stringify(reminderList)});
+
 ul#js-news.js-hidden
-  if typeof reminderList != 'undefined'
+  if typeof reminderList != 'undefined' && reminderList.length != 0
     each reminder in reminderList
       li.news-item
-        a(href='#') #{reminder.rname}
+        a(href='#') #{reminder.time} - #{reminder.rname}
   else
     li.news-item
       a No reminders available.

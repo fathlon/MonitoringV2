@@ -1,8 +1,11 @@
+var messages = [];
+var speechBusy = false;
+
 $(function() {
+
 	checkServers();
 	loadBuilds();
-    $('#js-news').ticker();
-    //displayReminders();
+    displayReminders();
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -43,10 +46,10 @@ $(function() {
 		});
 	});
     
- /*   setInterval(function() {
+    setInterval(function() {
 		displayReminders();
 	}, 60000);
-   */ 
+   
     setInterval(function() {
 		loadBuilds();
 	}, 300000);
@@ -61,7 +64,9 @@ function loadBuilds() {
 }
 
 function displayReminders() {
-    $('#tickerHolder').load('/reminder/displayReminders');
+    $('#tickerHolder').load('/reminder/displayReminders', function() {
+		$('#js-news').ticker();
+	});
 }
 
 function checkServers() {
@@ -122,35 +127,61 @@ function flashErrorMessage(message) {
 }
 
 function processJobsShoutout(jobs) {
+	//Hack code alert !!
+	var processShout = messages.length == 0 ? true : false;
+	
 	var red_prefix = 'Failed job', yellow_prefix = 'Partial failure', aborted_prefix = 'Cancelled job';
-	var messages = [];
+
 	for (var i = 0, len = jobs.length; i < len; i++) {
 		var job = jobs[i];
-		if(job.status.startsWith('red')) {
+		if(job.status == 'red') {
 			messages.push(red_prefix + ', ' + job.name);
-		} else if (job.status.startsWith('yellow')) {
+		} else if (job.status = 'yellow') {
 			messages.push(yellow_prefix + ', ' + job.name);
-		} else if (job.status.startsWith('aborted')) {
+		} else if (job.status == 'aborted') {
 			messages.push(aborted_prefix + ', ' + job.name);
 		}
 	}
-	shout(messages);
+	
+	if(processShout) {
+		shout(messages);
+	}
 }
 
-function shout(messages) {
+function processRemindersShoutout(reminders) {
+	//Hack code alert !!
+	var processShout = messages.length == 0 ? true : false;
+	
+	for (var i = 0, len = reminders.length; i < len; i++) {
+		var reminder = reminders[i];
+		if(reminder.echo == true) {
+			messages.push('Reminder alert, ' + reminder.rname);
+		}
+	}
+	
+	if(processShout) {
+		shout(messages);
+	}
+}
+
+function shout(messages, bypass) {
 	var vconfig = {};
 	vconfig.speed = 150;
 	vconfig.wordgap = 10;
 	vconfig.pitch = 100;
 	
-	if(messages instanceof Array) {
-		speak.play(messages.pop(), vconfig, function() {
-			if(messages.length > 0) {
-				shout(messages);
-			}
-		});
-	} else {
-		speak.play(message, vconfig);
+	if(!speechBusy || bypass) {
+		speechBusy = true;
+		if(messages instanceof Array) {
+			speak.play(messages.shift(), vconfig, function() {
+				if(messages.length > 0) {
+					shout(messages, true);
+				}
+			});
+		} else {
+			speak.play(messages, vconfig);
+		}
+		speechBusy = false;
 	}
 }
 

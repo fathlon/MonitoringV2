@@ -316,11 +316,22 @@ app.post('/reminder/add', function(req, res) {
 
 app.get('/reminder/displayReminders', function(req, res) {
     var reminderList = [];
-    var queryString = { time: moment().format(reminderComparison['time']) };
-    /*
-	reminderDb.find({recurring: 'Yes'}, function(err, results) {
+	var now = moment().format(reminderComparison['time']);
+	var then = moment().subtract('minute', 10).format(reminderComparison['time']);
+	
+    var queryString = { 'time >=': then, 'time <=': now };
+    
+	reminderDb.find(queryString, function(err, results) {
         for(key in results) {
             var reminder = results[key];
+
+			// To determine if result should be shouted out or purely display
+			if(true){//if(now == reminder.time) {
+				reminder.echo = true;
+			} else {
+				reminder.echo = false;
+			}
+
             if(reminder.recurring == 'Yes') {
                 var comparisonType = reminderComparison[reminder.frequency];
                 if(comparisonType != undefined) {
@@ -328,7 +339,7 @@ app.get('/reminder/displayReminders', function(req, res) {
                         if(moment().format(comparisonType) == reminder.date) {
                             reminderList.push(reminder);
                         }
-                    } else { /* Daily frequency does not need date comparison 
+                    } else { /* Daily frequency does not need date comparison */
                         reminderList.push(reminder);
                     }
                 }
@@ -338,21 +349,11 @@ app.get('/reminder/displayReminders', function(req, res) {
                 }
             }
         }
+
+		res.render('includes/ticker', {
+	        reminderList: reminderList
+	    });
     });
-    */
-    reminderDb.all(function(err, results) {
-       for( k in results) {
-        reminderList.push(results[k]);
-       }
-	   res.render('includes/ticker', {
-            reminderList: reminderList
-        });
-	});
-    /*
-    res.render('includes/ticker', {
-        reminderList: reminderList
-    });
-    */
 });
 
 
