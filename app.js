@@ -326,7 +326,7 @@ app.get('/reminder/displayReminders', function(req, res) {
             var reminder = results[key];
 
 			// To determine if result should be shouted out or purely display
-			if(true){//if(now == reminder.time) {
+			if(now == reminder.time) {
 				reminder.echo = true;
 			} else {
 				reminder.echo = false;
