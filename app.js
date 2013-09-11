@@ -5,6 +5,8 @@
 var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
+	https = require('https'),
+	url = require('url'),
 	path = require('path'),
 	async = require('async'),
     moment = require('moment');	
@@ -49,10 +51,10 @@ nStore = nStore.extend(require('nstore/query')());
 
 var db = nStore.new(__dirname + '/db/data.db', function(){
     console.log('Data DB loaded.');
-});
-
-var reminderDb = nStore.new(__dirname + '/db/reminderData.db', function(){
+}), reminderDb = nStore.new(__dirname + '/db/reminderData.db', function(){
 	console.log('Reminder DB loaded.');
+}), testDb = nStore.new(__dirname + '/db/test.db', function() {
+	console.log('Done');
 });
 
 /**
@@ -96,7 +98,7 @@ reminderComparison['Weekly'] = 'ddd';
 reminderComparison['Daily'] = '';
 
 /**
- * Routing
+ * Redirecting
  */
 
 //app.get('/', routes.index);
@@ -104,6 +106,11 @@ reminderComparison['Daily'] = '';
 app.get('/', function(req, res) {
 	res.redirect('/index');
 });
+
+
+/**
+ * Jobs
+ */
 
 app.get('/index', function(req, res) {
 	res.render('monitor/index', {
@@ -124,15 +131,15 @@ app.get('/list', function(req, res) {
 	});
 });
 
-app.get('/add', function(req, res){
+app.get('/add', function(req, res) {
 	res.render('monitor/add', {
 		title: 'Choose jobs to monitor:',
         availableServers: serverMapKeys,
 		jobs: []
-	})
+	});
 });
 
-app.get('/save', function(req, res){
+app.get('/save', function(req, res) {
 	var jobs = req.param('jobs');
 	var server = req.param('server');
 	var savedJobs = [];
@@ -148,29 +155,73 @@ app.get('/save', function(req, res){
 	});
 });
 
-app.get('/serverstatus', function(req, res) {
-	async.map(serverMapKeys, getFeed, function(err, allFeed){
-		serverInfoList = [];
+app.get('/jira', function(req, res) {
+var abc = 'https://wdsglobal.atlassian.net/rest/api/latest/search?jql=issuetype+in+(%22Bluepool+Bug/Rework%22,+%22Bluepool+Feature+Request%22,+%22DCE+Bug/+Rework%22,+%22DCE+Enhancement%22,+Decommission,+%22Enhancement/Improvement%22,+Presales,+%22Quality+Issue%22,+Query,+%22Service+Request%22,+%22Support/Bug%22,+Task,+Incident)+AND+status+in+(Open,+%22In+Progress%22,+Reopened)+AND+assignee+in+(%22sg.development%22)+ORDER+BY+cf%5B10035%5D+ASC,+key+DESC';
 
-		for (var i = 0, len = allFeed.length; i < len; i++) {
-			var feed = allFeed[i];
-			var serverUrl = constructUrl(serverMap[feed.name]);			
-			var status = 'down';
-		
-			if(feed.jobs != failedFeedIndicator) {
-				status = 'green';				
-			}
-		
-			serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
-		}
-		
-		res.render('includes/server_list', {
-	        monitoredServers: serverInfoList
-	    });
+ccc = url.parse(abc);
+//console.log(ccc);
+
+	async.auto({
+		getSupportUrl: function(callback) {
+	
+			var options = { host: 'wdsglobal.atlassian.net', path: '/rest/api/latest/filter/10059', method: 'get', auth: 'sg.development:eastc0ast' };
+			var req1 = https.request(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk){
+					contentString += chunk;
+				});
+
+				res1.on('end', function(){
+					var cont = JSON.parse(contentString);
+					//console.log(cont.searchUrl);
+					callback(null, cont.searchUrl);
+				});	
+				
+			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA support URL : ' + e.message);
+				//callback(null, { name: serverName, type: server.type, jobs: failedFeedIndicator }); //Feed Failed
+			});
+			
+			req1.end();
+		},
+		getSupportContent: ['getSupportUrl', function(callback, results) {
+			console.log('This is from supportcontent - ' + results.getSupportUrl);
+			var supportDashUrl = url.parse(results.getSupportUrl);
+			var options = { hostname: supportDashUrl.hostname, port: '443', path: supportDashUrl.path, method: 'get', auth: 'sg.development:eastc0ast' };
+			
+			https.get(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+				
+				res1.on('end', function(){
+					var cont = JSON.parse(contentString);
+					console.log(cont);
+					callback(null, cont);
+				});	
+			});
+			
+			callback(null, results);
+		}]
+	},
+	function(err, results) {
+		res.send(200);
 	});
+	
+	//res.send(200);
 });
 
-app.get('/listBuilds', function(req, res){
+app.get('/listBuilds', function(req, res) {
 	async.auto({
 		getAllFeed: function(callback)	{
 			async.map(serverMapKeys, getFeed, function(err, allFeed){
@@ -178,7 +229,7 @@ app.get('/listBuilds', function(req, res){
 				callback(null, allFeed);
 			});
 		},
-		getAllDBJobs: function(callback){
+		getAllDBJobs: function(callback) {
 			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs){
 				if(err) { callback(err); }
 				callback(null, allDBJobs);
@@ -226,7 +277,7 @@ app.get('/listBuilds', function(req, res){
 	});
 });
 
-app.get('/get/:serverName', function(req, res){
+app.get('/get/:serverName', function(req, res) {
     var name = req.params.serverName
 
 	if(feedCacheMap[name] != undefined) {
@@ -239,16 +290,16 @@ app.get('/get/:serverName', function(req, res){
 			getFeed: function(callback)	{
 				getFeed(name, callback);
 			},
-			getDBJobs: function(callback){
+			getDBJobs: function(callback) {
 				retrieveDBJobs(name, callback);
 			},
-			filterSavedJobs: ['getFeed', 'getDBJobs', function(callback, results){
+			filterSavedJobs: ['getFeed', 'getDBJobs', function(callback, results) {
 				var feed = results.getFeed.jobs.slice(0);
 				var dbJob = results.getDBJobs;
 
-				for (var i = 0; i < feed.length; i++){
+				for (var i = 0; i < feed.length; i++) {
 					var feedJob = feed[i];
-					if(dbJob.indexOf(feedJob.name) > -1){
+					if(dbJob.indexOf(feedJob.name) > -1) {
 						feed.splice(i, 1);
 						i--;
 					}
@@ -268,8 +319,8 @@ app.get('/get/:serverName', function(req, res){
 	}
 });
 
-app.get('/delete/:jobName', function(req, res){
-	db.get(req.params.jobName, function(err, doc, key){
+app.get('/delete/:jobName', function(req, res) {
+	db.get(req.params.jobName, function(err, doc, key) {
 		if(err) { throw err;}
 		
 		delete feedCacheMap[doc.server];
@@ -285,6 +336,33 @@ app.get('/clear/cache', function(req, res) {
     res.send(200);
 });
 
+app.get('/serverstatus', function(req, res) {
+	async.map(serverMapKeys, getFeed, function(err, allFeed) {
+		serverInfoList = [];
+
+		for (var i = 0, len = allFeed.length; i < len; i++) {
+			var feed = allFeed[i];
+			var serverUrl = constructUrl(serverMap[feed.name]);			
+			var status = 'down';
+		
+			if(feed.jobs != failedFeedIndicator) {
+				status = 'green';				
+			}
+		
+			serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
+		}
+		
+		res.render('includes/server_list', {
+	        monitoredServers: serverInfoList
+	    });
+	});
+});
+
+
+/**
+ * Reminders
+ */
+
 app.get('/reminder/list', function(req, res) {
 	reminderDb.all(function(err, results) {
 	    res.render('reminder/rList', {
@@ -294,8 +372,8 @@ app.get('/reminder/list', function(req, res) {
 	});
 });
 
-app.get('/reminder/delete/:rid', function(req, res){
-	reminderDb.get(req.params.rid, function(err, doc, key){
+app.get('/reminder/delete/:rid', function(req, res) {
+	reminderDb.get(req.params.rid, function(err, doc, key) {
 		if(err) { throw err;}
 		
 		reminderDb.remove(key, function(err) {
@@ -438,11 +516,11 @@ function getFailedJobFeed(server, job, callback) {
 	var options = { host: server.server, port: server.port, path: path, method: 'get' };
 	var req = http.request(options, function(res) {
 	    var contentString = '';
-		res.on('data', function(chunk){
+		res.on('data', function(chunk) {
 		    contentString += chunk;
 		});
 
-		res.on('end', function(){
+		res.on('end', function() {
 			var jobFeed = JSON.parse(contentString);
 			job['status'] = jobFeed.color;
 			if (jenkinsFailureType.indexOf(jobFeed.color) != -1) {
@@ -475,7 +553,7 @@ function getFailedJobFeed(server, job, callback) {
 function constructToSaveJobs(jobs, server) {
 	var jobList = [];
 	
-	jobs.forEach(function(job){
+	jobs.forEach(function(job) {
 		jobList.push({name: job, server: server});
 	});
 	
