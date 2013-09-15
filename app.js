@@ -19,7 +19,7 @@ var express = require('express'),
 
 var app = express();
 
-app.configure(function(){
+app.configure(function() {
 	app.set('port', process.env.PORT || 3000);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
@@ -33,7 +33,7 @@ app.configure(function(){
 	app.use(errorHandler);
 });
 
-app.configure('development', function(){
+app.configure('development', function() {
 	app.use(express.errorHandler());
 });
 
@@ -49,9 +49,9 @@ function errorHandler(err, req, res, next) {
 var nStore = require('nstore');
 nStore = nStore.extend(require('nstore/query')());
 
-var db = nStore.new(__dirname + '/db/data.db', function(){
+var db = nStore.new(__dirname + '/db/data.db', function() {
     console.log('Data DB loaded.');
-}), reminderDb = nStore.new(__dirname + '/db/reminderData.db', function(){
+}), reminderDb = nStore.new(__dirname + '/db/reminderData.db', function() {
 	console.log('Reminder DB loaded.');
 }), testDb = nStore.new(__dirname + '/db/test.db', function() {
 	console.log('Done');
@@ -61,7 +61,7 @@ var db = nStore.new(__dirname + '/db/data.db', function(){
  * Server startup
  */
  
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
 });	
 
@@ -75,11 +75,11 @@ serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', server: 'localhos
 serverMap['winbob'] = {name: 'winbob', path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 serverMap['linbob'] = {name: 'linbob', path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
 */
-serverMap['jenkins'] = {name: 'jenkins', path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
-serverMap['virgon'] = {name: 'virgon', path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
-serverMap['leonis'] = {name: 'leonis', path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
-serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
-serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
+serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins' };
+serverMap['virgon'] = { name: 'virgon', path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins' };
+serverMap['leonis'] = { name: 'leonis', path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins' };
+serverMap['winbob'] = { name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol' };
+serverMap['linbob'] = { name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol' };
 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
@@ -89,6 +89,10 @@ var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_a
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
 
+/**
+ * Reminders 
+ */
+
 var reminderComparison = {};
 reminderComparison['default'] = 'DD/MM/YYYY';
 reminderComparison['time'] = 'HH:mm';
@@ -96,6 +100,16 @@ reminderComparison['Annually'] = 'DD/MM';
 reminderComparison['Monthly'] = 'DD';
 reminderComparison['Weekly'] = 'ddd';
 reminderComparison['Daily'] = '';
+
+/**
+ * JIRA
+ */
+
+var jiraMappings = {}; //Fields API - https://wdsglobal.atlassian.net/rest/api/2/field
+jiraMappings['dbJobList'] = 'jiraSupportList';
+jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', path: '/rest/api/latest/filter/10059', auth: 'sg.development:eastc0ast' };
+jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
+
 
 /**
  * Redirecting
@@ -157,23 +171,17 @@ app.get('/save', function(req, res) {
 
 app.get('/jira', function(req, res) {
 var abc = 'https://wdsglobal.atlassian.net/rest/api/latest/search?jql=issuetype+in+(%22Bluepool+Bug/Rework%22,+%22Bluepool+Feature+Request%22,+%22DCE+Bug/+Rework%22,+%22DCE+Enhancement%22,+Decommission,+%22Enhancement/Improvement%22,+Presales,+%22Quality+Issue%22,+Query,+%22Service+Request%22,+%22Support/Bug%22,+Task,+Incident)+AND+status+in+(Open,+%22In+Progress%22,+Reopened)+AND+assignee+in+(%22sg.development%22)+ORDER+BY+cf%5B10035%5D+ASC,+key+DESC';
-
-ccc = url.parse(abc);
-//console.log(ccc);
-
 	async.auto({
-		getSupportUrl: function(callback) {
-	
-			var options = { host: 'wdsglobal.atlassian.net', path: '/rest/api/latest/filter/10059', method: 'get', auth: 'sg.development:eastc0ast' };
+		getSupportUrl: function(callback) {	
+			var options = jiraMappings.server;
 			var req1 = https.request(options, function(res1) {
 				var contentString = '';
-				res1.on('data', function(chunk){
+				res1.on('data', function(chunk) {
 					contentString += chunk;
 				});
 
-				res1.on('end', function(){
+				res1.on('end', function() {
 					var cont = JSON.parse(contentString);
-					//console.log(cont.searchUrl);
 					callback(null, cont.searchUrl);
 				});	
 				
@@ -194,9 +202,9 @@ ccc = url.parse(abc);
 			req1.end();
 		},
 		getSupportContent: ['getSupportUrl', function(callback, results) {
-			console.log('This is from supportcontent - ' + results.getSupportUrl);
+			//console.log('This is from supportcontent - ' + results.getSupportUrl);
 			var supportDashUrl = url.parse(results.getSupportUrl);
-			var options = { hostname: supportDashUrl.hostname, port: '443', path: supportDashUrl.path, method: 'get', auth: 'sg.development:eastc0ast' };
+			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings.server.auth };
 			
 			https.get(options, function(res1) {
 				var contentString = '';
@@ -204,14 +212,34 @@ ccc = url.parse(abc);
 					contentString += chunk;
 				});
 				
-				res1.on('end', function(){
+				res1.on('end', function() {
 					var cont = JSON.parse(contentString);
-					console.log(cont);
-					callback(null, cont);
+					callback(null, cont.issues);
 				});	
 			});
 			
-			callback(null, results);
+			
+		/*	
+		*/	//callback(null, results);
+		}],
+		getDBSupportList: function(callback) {
+			testDb.get(jiraMappings['dbJobList'], function(err, doc, key) {
+				if (err) { throw err; };
+				callback(null, doc);
+			})	
+		},
+		flagNewSupport: ['getDBSupportList', 'getSupportContent', function(callback, results) {
+			var newSupportContent = results.getSupportContent;
+			var oldSupportContent = results.getDBSupportList;
+			
+			for (var i = 0, len = newSupportContent.length; i < len; i++) {
+				newSupportContent.key
+			}
+			
+			testDb.save(jiraMappings['dbJobList'], newSupportContent, function (err) {
+				if (err) { throw err; }
+				// The save is finished and written to disk safely
+			});
 		}]
 	},
 	function(err, results) {
@@ -224,13 +252,13 @@ ccc = url.parse(abc);
 app.get('/listBuilds', function(req, res) {
 	async.auto({
 		getAllFeed: function(callback)	{
-			async.map(serverMapKeys, getFeed, function(err, allFeed){
+			async.map(serverMapKeys, getFeed, function(err, allFeed) {
 				if(err) { callback(err); }
 				callback(null, allFeed);
 			});
 		},
 		getAllDBJobs: function(callback) {
-			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs){
+			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs) {
 				if(err) { callback(err); }
 				callback(null, allDBJobs);
 			});
@@ -245,7 +273,7 @@ app.get('/listBuilds', function(req, res) {
 					for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
 						var feedJob = feed.jobs[j];
 						var feedType = feed.type;
-						if(dbJob.indexOf(feedJob.name) > -1){					
+						if(dbJob.indexOf(feedJob.name) > -1) {					
 							if(feedType === 'jenkins') {
 								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
 									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
@@ -262,7 +290,7 @@ app.get('/listBuilds', function(req, res) {
 			callback(null, jobsToList);
 		}],
 		createListJobs: ['flagJobs', function(callback, results) {
-			async.map(results.flagJobs, createFailedJob, function(err, listedJobs){
+			async.map(results.flagJobs, createFailedJob, function(err, listedJobs) {
 				if(err) { callback(err); }
 				callback(null, listedJobs);
 			});
@@ -374,7 +402,7 @@ app.get('/reminder/list', function(req, res) {
 
 app.get('/reminder/delete/:rid', function(req, res) {
 	reminderDb.get(req.params.rid, function(err, doc, key) {
-		if(err) { throw err;}
+		if(err) { throw err; }
 		
 		reminderDb.remove(key, function(err) {
 			if (err) { res.send(500, { error: err }); } 
@@ -445,11 +473,11 @@ function getFeed(serverName, callback) {
 	var options = { host: server.server, port: server.port, path: server.path, method: 'get' };
 	var req = http.request(options, function(res) {
 	    var contentString = '';
-		res.on('data', function(chunk){
+		res.on('data', function(chunk) {
 		    contentString += chunk;
 		});
 
-		res.on('end', function(){
+		res.on('end', function() {
 			var jobFeed = JSON.parse(contentString);
 
 			if(server.type === 'cruisecontrol') {
@@ -458,7 +486,7 @@ function getFeed(serverName, callback) {
 				jobFeed = jobFeed.jobs;
 			}
 			
-			callback(null, { name: serverName, type: server.type, jobs: jobFeed});
+			callback(null, { name: serverName, type: server.type, jobs: jobFeed });
 		});	
 		
 	});
