@@ -139,7 +139,8 @@ a:hover {
 .yellow_anime,
 .aborted_anime,
 .blue_anime {
-  text-decoration: blink;
+  -webkit-animation: blink 0.75s linear infinite;
+  -moz-animation: blink 0.75s linear infinite;
 }
 .red,
 .red_anime {
@@ -164,6 +165,40 @@ a:hover {
   position: fixed;
   top: 140px;
   right: 50px;
+}
+@-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  50.01% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+@-moz-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  50.01% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 .inLine {
   float: left;
