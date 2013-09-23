@@ -81,7 +81,8 @@ var serverMap = {};
 serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', host: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', host: 'localhost', port: '3001', type: 'jenkins'};
 */
-serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', port: '80', type: 'jenkins', auth: 'sgdev:ZZEtFVP7' };
+//serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', type: 'jenkins', auth: 'sgdev:ZZEtFVP7'};
+serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
 serverMap['virgon'] = { name: 'virgon', path: '/api/json', host: 'virgon', port:'7070', type: 'jenkins' };
 serverMap['leonis'] = { name: 'leonis', path: '/api/json', host: 'leonis', port: '5050', type: 'jenkins' };
 
@@ -484,12 +485,12 @@ app.get('/reminder/displayReminders', function(req, res) {
  */
 
 function getFeed(serverName, callback) {
-	var options = serverMap[serverName];
+	var server = serverMap[serverName];
 	
 	var protocol = http;
-	if (options.auth != undefined) { protocol = https; }
+	if (server.auth != undefined) { protocol = https;}
 	
-	var req = protocol.request(options, function(res) {
+	var req = protocol.request(server, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk) {
 		    contentString += chunk;
@@ -499,7 +500,7 @@ function getFeed(serverName, callback) {
 			var jobFeed = JSON.parse(contentString);
 			jobFeed = jobFeed.jobs;
 			
-			callback(null, { name: serverName, type: options.type, jobs: jobFeed });
+			callback(null, { name: serverName, type: server.type, jobs: jobFeed });
 		});	
 		
 	});
@@ -554,8 +555,8 @@ function saveDBJobs(job, callback) {
 function getFailedJobFeed(server, job, callback) {
 	var path = '/job/' + encodeURIComponent(job['name']) + server.path;
 	
-	var options = { host: server.server, port: server.port, path: path, auth: server.auth };
-	
+	var options = { host: server.host, port: server.port, path: path, auth: server.auth };
+
 	var protocol = http;
 	if (options.auth != undefined) { protocol = https; }
 	
@@ -568,6 +569,7 @@ function getFailedJobFeed(server, job, callback) {
 		res.on('end', function() {
 			var jobFeed = JSON.parse(contentString);
 			job['status'] = jobFeed.color;
+            job['queueStatus'] = jobFeed.inQueue;
 			if (jenkinsFailureType.indexOf(jobFeed.color) != -1) {
 				job['url'] = jobFeed.lastUnsuccessfulBuild.url;
 			} else {
