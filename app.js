@@ -336,7 +336,11 @@ app.get('/reminder/displayReminders', function(req, res) {
                 var comparisonType = reminderComparison[reminder.frequency];
                 if(comparisonType != undefined) {
                     if(comparisonType != '') {
-                        if(moment().format(comparisonType) == reminder.date) {
+                        if(reminder.frequency == 'Weekly') {
+                            if(moment().format(comparisonType) == reminder.dow) {
+                                reminderList.push(reminder);
+                            }
+                        } else if(moment().format(comparisonType) == reminder.date) {
                             reminderList.push(reminder);
                         }
                     } else { /* Daily frequency does not need date comparison */
@@ -349,7 +353,6 @@ app.get('/reminder/displayReminders', function(req, res) {
                 }
             }
         }
-
 		res.render('includes/ticker', {
 	        reminderList: reminderList
 	    });
