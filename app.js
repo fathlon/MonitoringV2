@@ -5,6 +5,8 @@
 var express = require('express'),
 	routes = require('./routes'),
 	http = require('http'),
+	https = require('https'),
+	url = require('url'),
 	path = require('path'),
 	async = require('async'),
     moment = require('moment');	
@@ -17,7 +19,7 @@ var express = require('express'),
 
 var app = express();
 
-app.configure(function(){
+app.configure(function() {
 	app.set('port', process.env.PORT || 3000);
 	app.set('views', __dirname + '/views');
 	app.set('view engine', 'jade');
@@ -31,7 +33,7 @@ app.configure(function(){
 	app.use(errorHandler);
 });
 
-app.configure('development', function(){
+app.configure('development', function() {
 	app.use(express.errorHandler());
 });
 
@@ -47,19 +49,27 @@ function errorHandler(err, req, res, next) {
 var nStore = require('nstore');
 nStore = nStore.extend(require('nstore/query')());
 
-var db = nStore.new(__dirname + '/db/data.db', function(){
+var db = nStore.new(__dirname + '/db/data.db', function() {
     console.log('Data DB loaded.');
+}), reminderDb = nStore.new(__dirname + '/db/reminderData.db', function() {
+	console.log('Reminder DB loaded.');
+}), jiraDb = nStore.new(__dirname + '/db/jira.db', function() {
+	console.log('Done');
 });
 
-var reminderDb = nStore.new(__dirname + '/db/reminderData.db', function(){
-	console.log('Reminder DB loaded.');
-});
+//Prune 
+jiraDb.filterFn = function(doc, meta) {
+	return doc.created > Date.now() - 180000;
+	//return doc.lastAccess > Date.now() - 6000;
+};
+
+//jiraDb.compactDatabase(true);
 
 /**
  * Server startup
  */
  
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
 });	
 
@@ -68,16 +78,12 @@ http.createServer(app).listen(app.get('port'), function(){
  */
 var serverMap = {};
 /*
-serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', server: 'localhost', port: '3001', type: 'jenkins'};
-serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', server: 'localhost', port: '3001', type: 'jenkins'};
-serverMap['winbob'] = {name: 'winbob', path: '/server/winbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
-serverMap['linbob'] = {name: 'linbob', path: '/server/linbob', server: 'localhost', port: '3001', type: 'cruisecontrol'};
+serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', host: 'localhost', port: '3001', type: 'jenkins'};
+serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', host: 'localhost', port: '3001', type: 'jenkins'};
 */
-serverMap['jenkins'] = {name: 'jenkins', path: '/api/json', server: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
-serverMap['virgon'] = {name: 'virgon', path: '/api/json', server: 'virgon', port:'7070', type: 'jenkins'};
-serverMap['leonis'] = {name: 'leonis', path: '/api/json', server: 'leonis', port: '5050', type: 'jenkins'};
-serverMap['winbob'] = {name: 'winbob', path: '/cruisecontrol/json.jsp', server: 'winbob.wdstechnology.com', port: '7070', type: 'cruisecontrol'};
-serverMap['linbob'] = {name: 'linbob', path: '/cruisecontrol/json.jsp', server: 'linbob.wdsglobal.com', port: '7070', type: 'cruisecontrol'};
+serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', port: '80', type: 'jenkins', auth: 'sgdev:ZZEtFVP7' };
+serverMap['virgon'] = { name: 'virgon', path: '/api/json', host: 'virgon', port:'7070', type: 'jenkins' };
+serverMap['leonis'] = { name: 'leonis', path: '/api/json', host: 'leonis', port: '5050', type: 'jenkins' };
 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
@@ -86,6 +92,10 @@ var jenkinsFailureType = ['red', 'yellow', 'aborted'];
 var jenkinsBuildingType = ['blue_anime', 'yellow_anime', 'red_anime', 'aborted_anime'];
 var customTimeout = 10000;
 var failedFeedIndicator = 'FF';
+
+/**
+ * Reminders 
+ */
 
 var reminderComparison = {};
 reminderComparison['default'] = 'DD/MM/YYYY';
@@ -96,7 +106,17 @@ reminderComparison['Weekly'] = 'ddd';
 reminderComparison['Daily'] = '';
 
 /**
- * Routing
+ * JIRA
+ */
+
+var jiraMappings = {}; //Fields API - https://wdsglobal.atlassian.net/rest/api/2/field
+jiraMappings['dbJobList'] = 'jiraSupportList';
+jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', path: '/rest/api/latest/filter/10059', auth: 'sg.development:eastc0ast' };
+jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
+
+
+/**
+ * Redirecting
  */
 
 //app.get('/', routes.index);
@@ -104,6 +124,11 @@ reminderComparison['Daily'] = '';
 app.get('/', function(req, res) {
 	res.redirect('/index');
 });
+
+
+/**
+ * Jobs
+ */
 
 app.get('/index', function(req, res) {
 	res.render('monitor/index', {
@@ -124,15 +149,15 @@ app.get('/list', function(req, res) {
 	});
 });
 
-app.get('/add', function(req, res){
+app.get('/add', function(req, res) {
 	res.render('monitor/add', {
 		title: 'Choose jobs to monitor:',
         availableServers: serverMapKeys,
 		jobs: []
-	})
+	});
 });
 
-app.get('/save', function(req, res){
+app.get('/save', function(req, res) {
 	var jobs = req.param('jobs');
 	var server = req.param('server');
 	var savedJobs = [];
@@ -148,8 +173,212 @@ app.get('/save', function(req, res){
 	});
 });
 
+app.get('/jira', function(req, res) {
+	
+	async.auto({
+		getSupportUrl: function(callback) {	
+			var options = jiraMappings.server;
+			var req1 = https.request(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+
+				res1.on('end', function() {
+					var cont = JSON.parse(contentString);
+					callback(null, cont.searchUrl);
+				});	
+				
+			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA support URL : ' + e.message);
+				//callback(null, { name: serverName, type: server.type, jobs: failedFeedIndicator }); //Feed Failed
+			});
+			
+			req1.end();
+		},
+		getSupportContent: ['getSupportUrl', function(callback, results) {
+			var supportDashUrl = url.parse(results.getSupportUrl);
+			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings.server.auth };
+			
+			https.get(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+				
+				res1.on('end', function() {
+					var cont = JSON.parse(contentString);
+					callback(null, cont.issues);
+				});	
+			});
+		}],
+		getDBSupportList: function(callback) {
+			jiraDb.get(jiraMappings['dbJobList'], function(err, doc, key) {
+				if (err) { callback(err); };
+				if (doc == undefined) { doc = {}; }
+				callback(null, doc);
+			})	
+		},
+		flagNewSupport: ['getDBSupportList', 'getSupportContent', function(callback, results) {
+			var newSupportContentList = results.getSupportContent;
+			var oldSupportContentMap = results.getDBSupportList;
+			var processedFormat = {}, flaggedSupports = [];
+			
+			for (var i = 0, len = newSupportContentList.length; i < len; i++) {
+				var issue = newSupportContentList[i];
+				
+				if (issue.fields[jiraMappings['queueOrder'].id] == null) {
+					flaggedSupports.push(createSupportIssue(issue));
+				} else if (oldSupportContentMap[issue.key] != undefined) {
+					var oldIssue = oldSupportContentMap[issue.key];
+					if (oldIssue.fields.status.name != issue.fields.status.name) {
+						flaggedSupports.push(createSupportIssue(issue));
+					}
+				}
+				//if(issue.key != 'MTN-5' && issue.key != 'SGUF-307'){
+				processedFormat[issue.key] = issue;
+				//}
+			}
+
+			jiraDb.save(jiraMappings['dbJobList'], processedFormat, function (err) {
+				if (err) { callback(err); }
+				callback(null, flaggedSupports);
+			}); 
+		}]
+	},
+	function(err, results) {
+		res.send(200);
+	});
+	
+	//res.send(200);
+});
+
+app.get('/listBuilds', function(req, res) {
+	async.auto({
+		getAllFeed: function(callback)	{
+			async.map(serverMapKeys, getFeed, function(err, allFeed) {
+				if(err) { callback(err); }
+				callback(null, allFeed);
+			});
+		},
+		getAllDBJobs: function(callback) {
+			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs) {
+				if(err) { callback(err); }
+				callback(null, allDBJobs);
+			});
+		},
+		flagJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
+			var jobsToList = [];
+			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
+				var feed = results.getAllFeed[i];
+				var dbJob = results.getAllDBJobs[i];
+				
+				if(feed.jobs != failedFeedIndicator) {
+					for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
+						var feedJob = feed.jobs[j];
+						var feedType = feed.type;
+						if(dbJob.indexOf(feedJob.name) > -1) {					
+							if(feedType === 'jenkins') {
+								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
+									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
+								}
+							} else if(feedType === 'cruisecontrol') {
+								if(feedJob.result === 'failed') {
+									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
+								}
+							}
+						}
+					}
+				}
+			}
+			callback(null, jobsToList);
+		}],
+		createListJobs: ['flagJobs', function(callback, results) {
+			async.map(results.flagJobs, createFailedJob, function(err, listedJobs) {
+				if(err) { callback(err); }
+				callback(null, listedJobs);
+			});
+		}]
+	},
+	function(err, results) {	
+		if(err) { res.send(500, { error: err }); }
+
+		res.render('includes/job_failures', {
+			failureJobs: results.createListJobs
+		});
+	});
+});
+
+app.get('/get/:serverName', function(req, res) {
+    var name = req.params.serverName
+
+	if(feedCacheMap[name] != undefined) {
+        res.status(200);
+        res.render('includes/job_selections', {
+            jobs: feedCacheMap[name]
+        });
+    } else {
+		async.auto({
+			getFeed: function(callback)	{
+				getFeed(name, callback);
+			},
+			getDBJobs: function(callback) {
+				retrieveDBJobs(name, callback);
+			},
+			filterSavedJobs: ['getFeed', 'getDBJobs', function(callback, results) {
+				var feed = results.getFeed.jobs.slice(0);
+				var dbJob = results.getDBJobs;
+
+				for (var i = 0; i < feed.length; i++) {
+					var feedJob = feed[i];
+					if(dbJob.indexOf(feedJob.name) > -1) {
+						feed.splice(i, 1);
+						i--;
+					}
+				}
+				callback(null, feed);
+			}]
+		},
+		function(err, results) {
+			if(err) { throw err; }
+
+			feedCacheMap[name] = results.filterSavedJobs;
+			
+			res.render('includes/job_selections', {
+				jobs: results.filterSavedJobs
+			});
+		});
+	}
+});
+
+app.get('/delete/:jobName', function(req, res) {
+	db.get(req.params.jobName, function(err, doc, key) {
+		if(err) { throw err;}
+		
+		delete feedCacheMap[doc.server];
+		db.remove(key, function(err) {
+			if (err) { res.send(500, { error: err }); } 
+			res.send(200);
+		});
+	});
+});
+
+app.get('/clear/cache', function(req, res) {
+    feedCacheMap = {};
+    res.send(200);
+});
+
 app.get('/serverstatus', function(req, res) {
-	async.map(serverMapKeys, getFeed, function(err, allFeed){
+	async.map(serverMapKeys, getFeed, function(err, allFeed) {
 		serverInfoList = [];
 
 		for (var i = 0, len = allFeed.length; i < len; i++) {
@@ -170,120 +399,10 @@ app.get('/serverstatus', function(req, res) {
 	});
 });
 
-app.get('/listBuilds', function(req, res){
-	async.auto({
-		getAllFeed: function(callback)	{
-			async.map(serverMapKeys, getFeed, function(err, allFeed){
-				if(err) { callback(err); }
-				callback(null, allFeed);
-			});
-		},
-		getAllDBJobs: function(callback){
-			async.map(serverMapKeys, retrieveDBJobs, function(err, allDBJobs){
-				if(err) { callback(err); }
-				callback(null, allDBJobs);
-			});
-		},
-		flagJobs: ['getAllFeed', 'getAllDBJobs', function(callback, results) {
-			var jobsToList = [];
-			for (var i = 0, len = results.getAllFeed.length; i < len; i++) {
-				var feed = results.getAllFeed[i];
-				var dbJob = results.getAllDBJobs[i];
-				
-				if(feed.jobs != failedFeedIndicator) {
-					for (var j = 0, jlen = feed.jobs.length; j < jlen; j++) {
-						var feedJob = feed.jobs[j];
-						var feedType = feed.type;
-						if(dbJob.indexOf(feedJob.name) > -1){					
-							if(feedType === 'jenkins') {
-								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
-									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
-								}
-							} else if(feedType === 'cruisecontrol') {
-								if(feedJob.result === 'failed') {
-									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
-								}
-							}
-						}
-					}
-				}
-			}
-			callback(null, jobsToList);
-		}],
-		createListJobs: ['flagJobs', function(callback, results) {
-			async.map(results.flagJobs, createFailedJob, function(err, listedJobs){
-				if(err) { callback(err); }
-				callback(null, listedJobs);
-			});
-		}]
-	},
-	function(err, results) {	
-		if(err) { res.send(500, { error: err }); }
 
-		res.render('includes/job_failures', {
-			failureJobs: results.createListJobs
-		});
-	});
-});
-
-app.get('/get/:serverName', function(req, res){
-    var name = req.params.serverName
-
-	if(feedCacheMap[name] != undefined) {
-        res.status(200);
-        res.render('includes/job_selections', {
-            jobs: feedCacheMap[name]
-        });
-    } else {
-		async.auto({
-			getFeed: function(callback)	{
-				getFeed(name, callback);
-			},
-			getDBJobs: function(callback){
-				retrieveDBJobs(name, callback);
-			},
-			filterSavedJobs: ['getFeed', 'getDBJobs', function(callback, results){
-				var feed = results.getFeed.jobs.slice(0);
-				var dbJob = results.getDBJobs;
-
-				for (var i = 0; i < feed.length; i++){
-					var feedJob = feed[i];
-					if(dbJob.indexOf(feedJob.name) > -1){
-						feed.splice(i, 1);
-						i--;
-					}
-				}
-				callback(null, feed);
-			}]
-		},
-		function(err, results) {
-			if(err) { throw err; }
-
-			feedCacheMap[name] = results.filterSavedJobs;
-			
-			res.render('includes/job_selections', {
-				jobs: results.filterSavedJobs
-			});
-		});
-	}
-});
-
-app.get('/delete/:jobName', function(req, res){
-	db.get(req.params.jobName, function(err, doc, key){
-		if(err) { throw err;}
-		
-		delete feedCacheMap[doc.server];
-		db.remove(key, function(err) {
-			if (err) { res.send(500, { error: err }); } 
-			res.send(200);
-		});
-	});
-});
-
-app.get('/clear/cache', function(req, res) {
-    feedCacheMap = {};
-    res.send(200);
-});
+/**
+ * Reminders
+ */
 
 app.get('/reminder/list', function(req, res) {
 	reminderDb.all(function(err, results) {
@@ -294,9 +413,9 @@ app.get('/reminder/list', function(req, res) {
 	});
 });
 
-app.get('/reminder/delete/:rid', function(req, res){
-	reminderDb.get(req.params.rid, function(err, doc, key){
-		if(err) { throw err;}
+app.get('/reminder/delete/:rid', function(req, res) {
+	reminderDb.get(req.params.rid, function(err, doc, key) {
+		if(err) { throw err; }
 		
 		reminderDb.remove(key, function(err) {
 			if (err) { res.send(500, { error: err }); } 
@@ -365,25 +484,22 @@ app.get('/reminder/displayReminders', function(req, res) {
  */
 
 function getFeed(serverName, callback) {
-	var server = serverMap[serverName];
+	var options = serverMap[serverName];
 	
-	var options = { host: server.server, port: server.port, path: server.path, method: 'get' };
-	var req = http.request(options, function(res) {
+	var protocol = http;
+	if (options.auth != undefined) { protocol = https; }
+	
+	var req = protocol.request(options, function(res) {
 	    var contentString = '';
-		res.on('data', function(chunk){
+		res.on('data', function(chunk) {
 		    contentString += chunk;
 		});
 
-		res.on('end', function(){
+		res.on('end', function() {
 			var jobFeed = JSON.parse(contentString);
-
-			if(server.type === 'cruisecontrol') {
-				jobFeed = jobFeed.projects;
-			} else {
-				jobFeed = jobFeed.jobs;
-			}
+			jobFeed = jobFeed.jobs;
 			
-			callback(null, { name: serverName, type: server.type, jobs: jobFeed});
+			callback(null, { name: serverName, type: options.type, jobs: jobFeed });
 		});	
 		
 	});
@@ -438,14 +554,18 @@ function saveDBJobs(job, callback) {
 function getFailedJobFeed(server, job, callback) {
 	var path = '/job/' + encodeURIComponent(job['name']) + server.path;
 	
-	var options = { host: server.server, port: server.port, path: path, method: 'get' };
-	var req = http.request(options, function(res) {
+	var options = { host: server.server, port: server.port, path: path, auth: server.auth };
+	
+	var protocol = http;
+	if (options.auth != undefined) { protocol = https; }
+	
+	var req = protocol.request(options, function(res) {
 	    var contentString = '';
-		res.on('data', function(chunk){
+		res.on('data', function(chunk) {
 		    contentString += chunk;
 		});
 
-		res.on('end', function(){
+		res.on('end', function() {
 			var jobFeed = JSON.parse(contentString);
 			job['status'] = jobFeed.color;
 			if (jenkinsFailureType.indexOf(jobFeed.color) != -1) {
@@ -478,7 +598,7 @@ function getFailedJobFeed(server, job, callback) {
 function constructToSaveJobs(jobs, server) {
 	var jobList = [];
 	
-	jobs.forEach(function(job){
+	jobs.forEach(function(job) {
 		jobList.push({name: job, server: server});
 	});
 	
@@ -499,9 +619,17 @@ function createFailedJob(fjob, callback) {
 	}
 }
 
+function createSupportIssue(issue) {
+	var support = {};
+	support.id = issue.key
+	support.name = issue.fields.summary;
+	support.status = issue.fields.status.name;
+	return support;
+}
+
 function constructUrl(server) {
 	var url = 'http://';
-	url += server.server;
+	url += server.host;
 	url += ':';
 	url += server.port;
 	return url;
