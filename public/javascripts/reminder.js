@@ -26,7 +26,7 @@ $(function() {
 		toggleDateDisplayable($(this).val());
 	});
 	
-	$('#addReminder').submit(function() {
+	$('#addReminder').submit(function(event) {
 		/* Prevent form from submitting normally */
 		event.preventDefault();
 		
