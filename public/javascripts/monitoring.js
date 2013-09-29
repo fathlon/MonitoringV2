@@ -6,6 +6,7 @@ $(function() {
 	checkServers();
 	loadBuilds();
     displayReminders();
+	retrieveJira();
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -67,6 +68,10 @@ function displayReminders() {
     $('#tickerHolder').load('/reminder/displayReminders', function() {
 		$('#js-news').ticker();
 	});
+}
+
+function retrieveJira() {
+	$('#jiraList').load('/jiraSupport');
 }
 
 function checkServers() {
@@ -155,7 +160,7 @@ function processRemindersShoutout(reminders) {
 	for (var i = 0, len = reminders.length; i < len; i++) {
 		var reminder = reminders[i];
 		if(reminder.echo == true) {
-			messages.push('Reminder alert, ' + reminder.rname);
+			messages.push('Reminder alert, ' + reminder.rname + ', ' + reminder.rname);
 		}
 	}
 	

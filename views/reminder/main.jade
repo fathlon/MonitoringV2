@@ -3,6 +3,7 @@ extends ../layout
 block content
   script(type='text/javascript', src='/javascripts/reminder.js')
   h3= title
+  hr
   
   form(action='/reminder/add', id='addReminder', method='post')
     | Name : 

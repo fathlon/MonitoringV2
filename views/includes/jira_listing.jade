@@ -1,0 +1,7 @@
+each jiraItem in jiraList
+  li
+    a(href=jiraItem.url, target='_blank')
+      | #{jiraItem.id} - #{jiraItem.name}
+
+      if jiraItem.newSupport
+        span.blinkblink.red  (NEW)

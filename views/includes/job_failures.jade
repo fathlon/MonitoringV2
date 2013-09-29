@@ -3,7 +3,7 @@ script
 
 each job in failureJobs
   li
-    a(href=job.url, class=job.status, target='_blank') 
+    a.mainText(href=job.url, class=job.status, target='_blank') 
       if job.queueStatus
         | [Queued] - 
 

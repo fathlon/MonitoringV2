@@ -132,7 +132,7 @@ app.get('/', function(req, res) {
  */
 
 app.get('/index', function(req, res) {
-	res.render('monitor/index', {
+	res.render('index', {
         title: 'Monitoring Status',
         monitoredServers: [], //Clientside retrieval by async
         failureJobs: []	//Clientside retrieval by async
@@ -174,95 +174,6 @@ app.get('/save', function(req, res) {
 	});
 });
 
-app.get('/jira', function(req, res) {
-	
-	async.auto({
-		getSupportUrl: function(callback) {	
-			var options = jiraMappings.server;
-			var req1 = https.request(options, function(res1) {
-				var contentString = '';
-				res1.on('data', function(chunk) {
-					contentString += chunk;
-				});
-
-				res1.on('end', function() {
-					var cont = JSON.parse(contentString);
-					callback(null, cont.searchUrl);
-				});	
-				
-			});
-			
-			req1.on('socket', function (socket) {
-				socket.setTimeout(customTimeout);  
-				socket.on('timeout', function() {
-					req1.abort();
-				});
-			});
-			
-			req1.on('error', function(e) {
-				console.log('Error retrieving JIRA support URL : ' + e.message);
-				//callback(null, { name: serverName, type: server.type, jobs: failedFeedIndicator }); //Feed Failed
-			});
-			
-			req1.end();
-		},
-		getSupportContent: ['getSupportUrl', function(callback, results) {
-			var supportDashUrl = url.parse(results.getSupportUrl);
-			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings.server.auth };
-			
-			https.get(options, function(res1) {
-				var contentString = '';
-				res1.on('data', function(chunk) {
-					contentString += chunk;
-				});
-				
-				res1.on('end', function() {
-					var cont = JSON.parse(contentString);
-					callback(null, cont.issues);
-				});	
-			});
-		}],
-		getDBSupportList: function(callback) {
-			jiraDb.get(jiraMappings['dbJobList'], function(err, doc, key) {
-				if (err) { callback(err); };
-				if (doc == undefined) { doc = {}; }
-				callback(null, doc);
-			})	
-		},
-		flagNewSupport: ['getDBSupportList', 'getSupportContent', function(callback, results) {
-			var newSupportContentList = results.getSupportContent;
-			var oldSupportContentMap = results.getDBSupportList;
-			var processedFormat = {}, flaggedSupports = [];
-			
-			for (var i = 0, len = newSupportContentList.length; i < len; i++) {
-				var issue = newSupportContentList[i];
-				
-				if (issue.fields[jiraMappings['queueOrder'].id] == null) {
-					flaggedSupports.push(createSupportIssue(issue));
-				} else if (oldSupportContentMap[issue.key] != undefined) {
-					var oldIssue = oldSupportContentMap[issue.key];
-					if (oldIssue.fields.status.name != issue.fields.status.name) {
-						flaggedSupports.push(createSupportIssue(issue));
-					}
-				}
-				//if(issue.key != 'MTN-5' && issue.key != 'SGUF-307'){
-				processedFormat[issue.key] = issue;
-				//}
-			}
-
-			jiraDb.save(jiraMappings['dbJobList'], processedFormat, function (err) {
-				if (err) { callback(err); }
-				callback(null, flaggedSupports);
-			}); 
-		}]
-	},
-	function(err, results) {
-		res.send(200);
-	});
-	
-	//res.send(200);
-});
-
 app.get('/listBuilds', function(req, res) {
 	async.auto({
 		getAllFeed: function(callback)	{
@@ -288,14 +199,8 @@ app.get('/listBuilds', function(req, res) {
 						var feedJob = feed.jobs[j];
 						var feedType = feed.type;
 						if(dbJob.indexOf(feedJob.name) > -1) {					
-							if(feedType === 'jenkins') {
-								if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
-									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
-								}
-							} else if(feedType === 'cruisecontrol') {
-								if(feedJob.result === 'failed') {
-									jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
-								}
+							if(jenkinsFailureType.indexOf(feedJob.color) != -1 || jenkinsBuildingType.indexOf(feedJob.color) != -1) {
+								jobsToList.push({ serverName: feed.name, jobName: feedJob.name });
 							}
 						}
 					}
@@ -384,7 +289,8 @@ app.get('/serverstatus', function(req, res) {
 
 		for (var i = 0, len = allFeed.length; i < len; i++) {
 			var feed = allFeed[i];
-			var serverUrl = constructUrl(serverMap[feed.name]);			
+
+			var serverUrl = 'http://' + serverMap[feed.name].host + ':' + serverMap[feed.name].port;		
 			var status = 'down';
 		
 			if(feed.jobs != failedFeedIndicator) {
@@ -407,7 +313,7 @@ app.get('/serverstatus', function(req, res) {
 
 app.get('/reminder/list', function(req, res) {
 	reminderDb.all(function(err, results) {
-	    res.render('reminder/rList', {
+	    res.render('reminder/main', {
 	        title: 'Reminder List',
 			reminders: results
 	    });		
@@ -477,6 +383,118 @@ app.get('/reminder/displayReminders', function(req, res) {
 	        reminderList: reminderList
 	    });
     });
+});
+
+
+/**
+ * JIRA
+ */
+
+app.get('/jira', function(req, res) {
+	res.render('jira/main', {
+        title: 'JIRA Support List',
+		jiraList: []
+    });
+});
+
+app.get('/jiraSupport', function(req, res) {
+	async.auto({
+		getSupportUrl: function(callback) {	
+			var options = jiraMappings.server;
+			var req1 = https.request(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+
+				res1.on('end', function() {
+					var cont = JSON.parse(contentString);
+					callback(null, cont.searchUrl);
+				});	
+				
+			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA support URL : ' + e.message);
+				callback(null, '');
+			});
+			
+			req1.end();
+		},
+		getSupportContent: ['getSupportUrl', function(callback, results) {
+			if (results.getSupportUrl == '') {
+				callback('Unable to retrieve JIRA support URL.');
+			} else {
+				var supportDashUrl = url.parse(results.getSupportUrl);
+				var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings.server.auth };
+			
+				https.get(options, function(res1) {
+					var contentString = '';
+					res1.on('data', function(chunk) {
+						contentString += chunk;
+					});
+				
+					res1.on('end', function() {
+						var cont = JSON.parse(contentString);
+						callback(null, cont.issues);
+					});	
+				});
+			}
+		}],
+		getDBSupportList: function(callback) {
+			jiraDb.get(jiraMappings['dbJobList'], function(err, doc, key) {
+				if (err) { doc = {}; }
+				callback(null, doc);
+			})	
+		},
+		flagNewSupport: ['getDBSupportList', 'getSupportContent', function(callback, results) {
+			var newSupportContentList = results.getSupportContent;
+			var oldSupportContentMap = results.getDBSupportList;
+			var processedFormat = {}, flaggedSupports = [];
+			
+			for (var i = 0, len = newSupportContentList.length; i < len; i++) {
+				var issue = newSupportContentList[i];
+				
+				if (issue.fields[jiraMappings['queueOrder'].id] == null) {
+					flaggedSupports.unshift(createSupportIssue(issue, true));
+				} else if (oldSupportContentMap[issue.key] != undefined) {
+					var oldIssue = oldSupportContentMap[issue.key];
+					if (oldIssue.fields.status.name != issue.fields.status.name) {
+						flaggedSupports.unshift(createSupportIssue(issue, true));
+					}
+				} else {
+					flaggedSupports.push(createSupportIssue(issue));
+				}
+				//if(issue.key != 'MTN-5' && issue.key != 'SGUF-307'){
+				processedFormat[issue.key] = issue;
+				//}
+			}
+
+//			jiraDb.save(jiraMappings['dbJobList'], processedFormat, function (err) {
+//				if (err) { 
+//					callback(err); 
+//				} else {
+					callback(null, flaggedSupports);
+//				}
+//			}); 
+		}]
+	},
+	function(err, results) {
+		if(err) { 
+			res.send(500, { error: err }); 
+		} else {
+			res.render('includes/jira_listing', {
+				jiraList: results.flagNewSupport
+			});
+		} 
+	});
 });
 
 
@@ -611,29 +629,15 @@ function createFailedJob(fjob, callback) {
 	var server = serverMap[fjob.serverName];
 	var job = {};
 	job['name'] = fjob.jobName;
-	if(server.type === 'jenkins') {
-		getFailedJobFeed(server, job, callback);
-	} else {
-		//Cruisecontrol defaults to 'red'
-		job['status'] = 'red';
-		job['url'] = constructUrl(server) + '/buildresults/' + fjob.jobName;
-		callback(null, job);
-	}
+	getFailedJobFeed(server, job, callback);
 }
 
-function createSupportIssue(issue) {
+function createSupportIssue(issue, newSupport) {
 	var support = {};
 	support.id = issue.key
 	support.name = issue.fields.summary;
 	support.status = issue.fields.status.name;
+	support.url = 'https://' + jiraMappings['server'].host + '/browse/' + issue.key;
+	support.newSupport = newSupport;
 	return support;
 }
-
-function constructUrl(server) {
-	var url = 'http://';
-	url += server.host;
-	url += ':';
-	url += server.port;
-	return url;
-}
-

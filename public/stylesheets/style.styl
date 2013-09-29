@@ -21,7 +21,7 @@ body
 
 h3
   margin 15px 0
-  text-decoration underline
+  font-size headerSize
 
 hr
   margin-top 10px
@@ -105,14 +105,11 @@ a, a:hover
 #jobContent input[type=checkbox]
   margin-right 10px
 
-#failureList
+.displayList
   margin 10px 0
-  padding-left 20px
+  padding 0px 20px
 
-#failureList li div
-  height 35px
-
-#failureList a
+.displayList a
   position relative
   top 3px
 
@@ -133,11 +130,11 @@ a, a:hover
   color headerColor
   font-size headerSize
 
-.red, .red_anime, .yellow, .yellow_anime, .aborted, .aborted_anime, .blue_anime
+.mainText
   font-weight bold
   font-size visibleSize
 
-.red_anime, .yellow_anime, .aborted_anime, .blue_anime
+.red_anime, .yellow_anime, .aborted_anime, .blue_anime, .blinkblink
   -webkit-animation: blink .75s linear infinite
   -moz-animation: blink .75s linear infinite
 
