@@ -1,5 +1,4 @@
 var messages = [];
-var speechBusy = false;
 
 $(function() {
 
@@ -180,18 +179,14 @@ function shout(messages, bypass) {
 	vconfig.wordgap = 10;
 	vconfig.pitch = 100;
 	
-	if(!speechBusy || bypass) {
-		speechBusy = true;
-		if(messages instanceof Array) {
-			speak.play(messages.shift(), vconfig, function() {
-				if(messages.length > 0) {
-					shout(messages, true);
-				}
-			});
-		} else {
-			speak.play(messages, vconfig);
-		}
-		speechBusy = false;
+	if(messages instanceof Array) {
+		speak.play(messages.shift(), vconfig, function() {
+			if(messages.length > 0) {
+				shout(messages, true);
+			}
+		});
+	} else {
+		speak.play(messages, vconfig);
 	}
 }
 
