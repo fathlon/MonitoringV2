@@ -1,0 +1,316 @@
+ust	{"name":"ust","server":"winbob"}
+guinevere	{"name":"guinevere","server":"winbob"}
+pcmlibrary	{"name":"pcmlibrary","server":"winbob"}
+Bluepool	{"name":"Bluepool","server":"jenkins"}
+cbw-selfcare	{"name":"cbw-selfcare","server":"jenkins"}
+cbw-selfcare-deploy-to-dropzone	{"name":"cbw-selfcare-deploy-to-dropzone","server":"jenkins"}
+cbw-selfcare-deploy-to-stage	{"name":"cbw-selfcare-deploy-to-stage","server":"jenkins"}
+deploy_contents_to_stage	{"name":"deploy_contents_to_stage","server":"jenkins"}
+deploy_dm-cp-hosted_solution	{"name":"deploy_dm-cp-hosted_solution","server":"jenkins"}
+deploy_radioshack_sms_system	{"name":"deploy_radioshack_sms_system","server":"jenkins"}
+devicemine-export-deploy-to-stage	{"name":"devicemine-export-deploy-to-stage","server":"jenkins"}
+DevicemineExport	{"name":"DevicemineExport","server":"jenkins"}
+dm-cp-hosted	{"name":"dm-cp-hosted","server":"jenkins"}
+Export - Devicemine	{"name":"Export - Devicemine","server":"jenkins"}
+Export - Servicemine	{"name":"Export - Servicemine","server":"jenkins"}
+Export - Sync Jasmine with Hub	{"name":"Export - Sync Jasmine with Hub","server":"jenkins"}
+Export - TACs	{"name":"Export - TACs","server":"jenkins"}
+Feed Spider (build)	{"name":"Feed Spider (build)","server":"jenkins"}
+iPhone Profile API App Id Feed Deploy To Stage	{"name":"iPhone Profile API App Id Feed Deploy To Stage","server":"jenkins"}
+iPhone Profile API Build	{"name":"iPhone Profile API Build","server":"jenkins"}
+iPhone Profile API Create Release	{"name":"iPhone Profile API Create Release","server":"jenkins"}
+iPhone Profile API Deploy To Stage	{"name":"iPhone Profile API Deploy To Stage","server":"jenkins"}
+ustpcms	{"name":"ustpcms","server":"jenkins"}
+wbc-data-collection	{"name":"wbc-data-collection","server":"jenkins"}
+wbc-speed-test	{"name":"wbc-speed-test","server":"jenkins"}
+wbc-speed-test-schedule	{"name":"wbc-speed-test-schedule","server":"jenkins"}
+xframework	{"name":"xframework","server":"jenkins"}
+xframework-selfcare	{"name":"xframework-selfcare","server":"jenkins"}
+Zebra	{"name":"Zebra","server":"jenkins"}
+Jasmine	{"name":"Jasmine","server":"jenkins"}
+Job - Deploy stage feeds	{"name":"Job - Deploy stage feeds","server":"jenkins"}
+Job - Feed Spider	{"name":"Job - Feed Spider","server":"jenkins"}
+knowledge_ops	{"name":"knowledge_ops","server":"jenkins"}
+msisdn-tolerance	{"name":"msisdn-tolerance","server":"jenkins"}
+mtn-selfcare	{"name":"mtn-selfcare","server":"jenkins"}
+radioshack-selfcare	{"name":"radioshack-selfcare","server":"jenkins"}
+radioshack-sms-system	{"name":"radioshack-sms-system","server":"jenkins"}
+selfcare-core	{"name":"selfcare-core","server":"jenkins"}
+selfcare-nashua-mobile	{"name":"selfcare-nashua-mobile","server":"jenkins"}
+selfcare-wds	{"name":"selfcare-wds","server":"jenkins"}
+selfcare-wds-deploy-to-stage	{"name":"selfcare-wds-deploy-to-stage","server":"jenkins"}
+selfcare-nashua-mobile_deploy-to-stage	{"name":"selfcare-nashua-mobile_deploy-to-stage","server":"jenkins"}
+solavei-selfcare	{"name":"solavei-selfcare","server":"jenkins"}
+solavei-selfcare-deploy-to-dropzone	{"name":"solavei-selfcare-deploy-to-dropzone","server":"jenkins"}
+solavei-selfcare-deploy-to-stage	{"name":"solavei-selfcare-deploy-to-stage","server":"jenkins"}
+translations	{"name":"translations","server":"jenkins"}
+ADD - mysql	{"name":"ADD - mysql","server":"virgon"}
+ADD - oracle	{"name":"ADD - oracle","server":"virgon"}
+servicemine	{"name":"servicemine","server":"virgon"}
+ServiceMine Smoke Tests	{"name":"ServiceMine Smoke Tests","server":"virgon"}
+Deploy ServiceMine to Stage	{"name":"Deploy ServiceMine to Stage","server":"virgon"}
+provtemplates	{"name":"provtemplates","server":"jenkins"}
+wpr	{"name":"wpr","server":"winbob"}
+wpr	
+wpr	{"name":"wpr","server":"winbob"}
+wpr	
+user-management	{"name":"user-management","server":"jenkins"}
+user-management-deploy-to-stage	{"name":"user-management-deploy-to-stage","server":"jenkins"}
+user-management-client	{"name":"user-management-client","server":"jenkins"}
+dm-cp-hosted-ping-sites	{"name":"dm-cp-hosted-ping-sites","server":"jenkins"}
+Crawler - Centralized player for Selfcare Solavei	{"name":"Crawler - Centralized player for Selfcare Solavei","server":"leonis"}
+Crawler - Centralized player for Selfcare WDS	{"name":"Crawler - Centralized player for Selfcare WDS","server":"leonis"}
+Player2 selfcare-wds STAGE Data Deploy	{"name":"Player2 selfcare-wds STAGE Data Deploy","server":"leonis"}
+Player2 Solavei STAGE Data Deploy	{"name":"Player2 Solavei STAGE Data Deploy","server":"leonis"}
+Globalmine Server	{"name":"Globalmine Server","server":"virgon"}
+Globalmine End to End Tests	{"name":"Globalmine End to End Tests","server":"virgon"}
+Control - All Devicemine exports	{"name":"Control - All Devicemine exports","server":"jenkins"}
+Export - Devicemine (agent_framework_2)	{"name":"Export - Devicemine (agent_framework_2)","server":"jenkins"}
+Export - Devicemine (Demo)	{"name":"Export - Devicemine (Demo)","server":"jenkins"}
+Export - Devicemine (servicemine_all)	{"name":"Export - Devicemine (servicemine_all)","server":"jenkins"}
+http-postback-server	{"name":"http-postback-server","server":"jenkins"}
+http-postback-server	
+obfuscation-publisher	{"name":"obfuscation-publisher","server":"virgon"}
+obfuscation-publisher	
+campaign-manager-parent	{"name":"campaign-manager-parent","server":"virgon"}
+Export - Devicemine (agent_framework_2_8ta)	{"name":"Export - Devicemine (agent_framework_2_8ta)","server":"jenkins"}
+Export - Devicemine (agent_framework_2_o2)	{"name":"Export - Devicemine (agent_framework_2_o2)","server":"jenkins"}
+Export - Devicemine (dce)	{"name":"Export - Devicemine (dce)","server":"jenkins"}
+Export - Devicemine (htc)	{"name":"Export - Devicemine (htc)","server":"jenkins"}
+Export - Devicemine (radioshack_mobile)	{"name":"Export - Devicemine (radioshack_mobile)","server":"jenkins"}
+Export - Devicemine (retail_framework)	{"name":"Export - Devicemine (retail_framework)","server":"jenkins"}
+Export - Devicemine (sandisk)	{"name":"Export - Devicemine (sandisk)","server":"jenkins"}
+Export - Devicemine (solavei)	{"name":"Export - Devicemine (solavei)","server":"jenkins"}
+Export - Devicemine (solavei_all)	{"name":"Export - Devicemine (solavei_all)","server":"jenkins"}
+Export - Devicemine (weve)	{"name":"Export - Devicemine (weve)","server":"jenkins"}
+sainsbury-selfcare	{"name":"sainsbury-selfcare","server":"jenkins"}
+sainsburys-selfcare-deploy-to-dropzone	{"name":"sainsburys-selfcare-deploy-to-dropzone","server":"jenkins"}
+sainsburys-selfcare-deploy-to-stage	{"name":"sainsburys-selfcare-deploy-to-stage","server":"jenkins"}
+selfcare-wds-deploy-to-stage	
+selfcare-nashua-mobile_deploy-to-stage	
+solavei-selfcare-deploy-to-stage	
+cbw-selfcare-deploy-to-stage	
+sainsburys-selfcare-deploy-to-stage	
+9004-mtn-selfcare-Deploy-To-Stage	{"name":"9004-mtn-selfcare-Deploy-To-Stage","server":"jenkins"}
+9006-mtn-selfcare-Deploy-To-Stage-stable	{"name":"9006-mtn-selfcare-Deploy-To-Stage-stable","server":"jenkins"}
+9007-cbw-selfcare-deploy-to-stage	{"name":"9007-cbw-selfcare-deploy-to-stage","server":"jenkins"}
+9010-selfcare-wds-deploy-to-stage	{"name":"9010-selfcare-wds-deploy-to-stage","server":"jenkins"}
+9014-radioshack-selfcare-shell deploy to stage	{"name":"9014-radioshack-selfcare-shell deploy to stage","server":"jenkins"}
+9016-selfcare-nashua-mobile_deploy-to-stage	{"name":"9016-selfcare-nashua-mobile_deploy-to-stage","server":"jenkins"}
+9017-selfcare-nashua-mobile_deploy-to-stage-stable	{"name":"9017-selfcare-nashua-mobile_deploy-to-stage-stable","server":"jenkins"}
+9022-sprint-selfcare-deploy-to-stage	{"name":"9022-sprint-selfcare-deploy-to-stage","server":"jenkins"}
+9023-solavei-selfcare-deploy-to-stage	{"name":"9023-solavei-selfcare-deploy-to-stage","server":"jenkins"}
+9024-sainsburys-selfcare-deploy-to-stage	{"name":"9024-sainsburys-selfcare-deploy-to-stage","server":"jenkins"}
+mtn-selfcare-deploy-to-dropzone	{"name":"mtn-selfcare-deploy-to-dropzone","server":"jenkins"}
+mtn-selfcare-deploy-to-dropzone-stable	{"name":"mtn-selfcare-deploy-to-dropzone-stable","server":"jenkins"}
+mtn-selfcare-stable	{"name":"mtn-selfcare-stable","server":"jenkins"}
+nashua-selfcare-deploy-to-dropzone	{"name":"nashua-selfcare-deploy-to-dropzone","server":"jenkins"}
+nashua-selfcare-deploy-to-dropzone-stable	{"name":"nashua-selfcare-deploy-to-dropzone-stable","server":"jenkins"}
+radioshack-selfcare-test-fixes	{"name":"radioshack-selfcare-test-fixes","server":"jenkins"}
+selfcare-core-live	{"name":"selfcare-core-live","server":"jenkins"}
+selfcare-nashua-mobile-stable	{"name":"selfcare-nashua-mobile-stable","server":"jenkins"}
+sprint-selfcare	{"name":"sprint-selfcare","server":"jenkins"}
+sprint-selfcare benchmark	{"name":"sprint-selfcare benchmark","server":"jenkins"}
+sprint-selfcare-deploy-to-dropzone	{"name":"sprint-selfcare-deploy-to-dropzone","server":"jenkins"}
+wds-selfcare-deploy-to-dropzone	{"name":"wds-selfcare-deploy-to-dropzone","server":"jenkins"}
+Player2-Demo	{"name":"Player2-Demo","server":"virgon"}
+Player2-Demo	
+Gemalto-plugin	{"name":"Gemalto-plugin","server":"jenkins"}
+Gemalto-plugin	
+Sync Jasmine Phone Name From Hub (Stage)	{"name":"Sync Jasmine Phone Name From Hub (Stage)","server":"jenkins"}
+aegis	{"name":"aegis","server":"jenkins"}
+Export - Devicemine (device_images)	{"name":"Export - Devicemine (device_images)","server":"jenkins"}
+Export - Devicemine (nashua_mobile)	{"name":"Export - Devicemine (nashua_mobile)","server":"jenkins"}
+Export - Devicemine (sprint_device_detection)	{"name":"Export - Devicemine (sprint_device_detection)","server":"jenkins"}
+Export - Devicemine (virgincsv)	{"name":"Export - Devicemine (virgincsv)","server":"jenkins"}
+Export - Devicemine (virginmobile)	{"name":"Export - Devicemine (virginmobile)","server":"jenkins"}
+Export - Devicemine (contentqc)	{"name":"Export - Devicemine (contentqc)","server":"jenkins"}
+Export - Devicemine (dip_csv)	{"name":"Export - Devicemine (dip_csv)","server":"jenkins"}
+Export - Devicemine (reporting)	{"name":"Export - Devicemine (reporting)","server":"jenkins"}
+Export - Devicemine (repository)	{"name":"Export - Devicemine (repository)","server":"jenkins"}
+Export - Devicemine (vodacom)	{"name":"Export - Devicemine (vodacom)","server":"jenkins"}
+dm-cp-hosted-ping-sites	
+deploy_dm-cp-hosted_solution	
+deploy_contents_to_stage	
+knowledge_ops	
+ustpcms	
+translations	
+provtemplates	
+dm-cp-hosted-apply-delta	{"name":"dm-cp-hosted-apply-delta","server":"jenkins"}
+dm-cp-hosted-deploy-contents	{"name":"dm-cp-hosted-deploy-contents","server":"jenkins"}
+dm-cp-hosted-deploy-solution	{"name":"dm-cp-hosted-deploy-solution","server":"jenkins"}
+dm-cp-hosted-knowledge-ops	{"name":"dm-cp-hosted-knowledge-ops","server":"jenkins"}
+dm-cp-hosted-pcms	{"name":"dm-cp-hosted-pcms","server":"jenkins"}
+dm-cp-hosted-provtemplates	{"name":"dm-cp-hosted-provtemplates","server":"jenkins"}
+dm-cp-hosted-translations	{"name":"dm-cp-hosted-translations","server":"jenkins"}
+Export - Devicemine (cbw_selfcare)	{"name":"Export - Devicemine (cbw_selfcare)","server":"jenkins"}
+Export - Devicemine (vodafone)	{"name":"Export - Devicemine (vodafone)","server":"jenkins"}
+Export - Devicemine (vodafone_vision)	{"name":"Export - Devicemine (vodafone_vision)","server":"jenkins"}
+Export - Devicemine (mdm3)	{"name":"Export - Devicemine (mdm3)","server":"jenkins"}
+Export - Devicemine (motive)	{"name":"Export - Devicemine (motive)","server":"jenkins"}
+Export - Devicemine (servicemine_non_gsm)	{"name":"Export - Devicemine (servicemine_non_gsm)","server":"jenkins"}
+Export - Devicemine (sprint)	{"name":"Export - Devicemine (sprint)","server":"jenkins"}
+Export - Devicemine (sprint_hubid)	{"name":"Export - Devicemine (sprint_hubid)","server":"jenkins"}
+Export - Devicemine (viettel)	{"name":"Export - Devicemine (viettel)","server":"jenkins"}
+devicemine-export-deploy-to-stage	
+Export - Devicemine (documentation)	{"name":"Export - Devicemine (documentation)","server":"jenkins"}
+Export - Devicemine (schemas)	{"name":"Export - Devicemine (schemas)","server":"jenkins"}
+Taccode-Monitor LIVE	{"name":"Taccode-Monitor LIVE","server":"jenkins"}
+Taccode-Monitor Stage	{"name":"Taccode-Monitor Stage","server":"jenkins"}
+Export - Devicemine	
+rsmps-selfcare	{"name":"rsmps-selfcare","server":"jenkins"}
+tesco-mpn-imei-import-job-build	{"name":"tesco-mpn-imei-import-job-build","server":"jenkins"}
+Batch Loader - Tesco MPN-IMEI Import Job	{"name":"Batch Loader - Tesco MPN-IMEI Import Job","server":"jenkins"}
+dm-cp-hosted-pcm-data-transformer	{"name":"dm-cp-hosted-pcm-data-transformer","server":"jenkins"}
+cbw-selfcare	
+cbw-selfcare-deploy-to-dropzone	
+xframework	
+xframework-selfcare	
+mtn-selfcare	
+radioshack-selfcare	
+selfcare-core	
+selfcare-nashua-mobile	
+selfcare-wds	
+solavei-selfcare	
+solavei-selfcare-deploy-to-dropzone	
+user-management	
+user-management-deploy-to-stage	
+user-management-client	
+Crawler - Centralized player for Selfcare Solavei	
+Crawler - Centralized player for Selfcare WDS	
+Player2 selfcare-wds STAGE Data Deploy	
+Player2 Solavei STAGE Data Deploy	
+Globalmine Server	
+Globalmine End to End Tests	
+sainsbury-selfcare	
+sainsburys-selfcare-deploy-to-dropzone	
+9004-mtn-selfcare-Deploy-To-Stage	
+9006-mtn-selfcare-Deploy-To-Stage-stable	
+9007-cbw-selfcare-deploy-to-stage	
+9010-selfcare-wds-deploy-to-stage	
+9014-radioshack-selfcare-shell deploy to stage	
+9016-selfcare-nashua-mobile_deploy-to-stage	
+9017-selfcare-nashua-mobile_deploy-to-stage-stable	
+9022-sprint-selfcare-deploy-to-stage	
+9023-solavei-selfcare-deploy-to-stage	
+9024-sainsburys-selfcare-deploy-to-stage	
+mtn-selfcare-deploy-to-dropzone	
+mtn-selfcare-deploy-to-dropzone-stable	
+mtn-selfcare-stable	
+nashua-selfcare-deploy-to-dropzone	
+nashua-selfcare-deploy-to-dropzone-stable	
+radioshack-selfcare-test-fixes	
+selfcare-core-live	
+selfcare-nashua-mobile-stable	
+sprint-selfcare	
+sprint-selfcare benchmark	
+sprint-selfcare-deploy-to-dropzone	
+wds-selfcare-deploy-to-dropzone	
+rsmps-selfcare	
+servicemine	
+email-auto-guess-validator-git	{"name":"email-auto-guess-validator-git","server":"virgon"}
+servicemine-git	{"name":"servicemine-git","server":"virgon"}
+servicemine-sales-demo-git	{"name":"servicemine-sales-demo-git","server":"virgon"}
+ust	
+Export - Servicemine Stage	{"name":"Export - Servicemine Stage","server":"jenkins"}
+sms-sender-web	{"name":"sms-sender-web","server":"jenkins"}
+servicemine	{"name":"servicemine","server":"virgon"}
+vodacom-drc-batch	{"name":"vodacom-drc-batch","server":"virgon"}
+vodacom-drc-preprocessor	{"name":"vodacom-drc-preprocessor","server":"virgon"}
+Export - Servicemine Stage	
+Deploy ServiceMine to Stage (Tomcat 7)	{"name":"Deploy ServiceMine to Stage (Tomcat 7)","server":"virgon"}
+Sync Jasmine Phone Name From Hub	{"name":"Sync Jasmine Phone Name From Hub","server":"jenkins"}
+commentindexservice	{"name":"commentindexservice","server":"jenkins"}
+common	{"name":"common","server":"jenkins"}
+crawlermanager	{"name":"crawlermanager","server":"jenkins"}
+crawlers	{"name":"crawlers","server":"jenkins"}
+perceptum	{"name":"perceptum","server":"jenkins"}
+Control - Devicemine - 1	{"name":"Control - Devicemine - 1","server":"jenkins"}
+Control - Devicemine - 2	{"name":"Control - Devicemine - 2","server":"jenkins"}
+Control - Devicemine - 3	{"name":"Control - Devicemine - 3","server":"jenkins"}
+Control - Devicemine - Daily	{"name":"Control - Devicemine - Daily","server":"jenkins"}
+aegis	
+tesco-mpn-imei-import-job-build	
+commentindexservice	
+common	
+crawlermanager	
+crawlers	
+deploy_radioshack_sms_system	
+dm-cp-hosted	
+dm-cp-hosted-apply-delta	
+dm-cp-hosted-deploy-contents	
+dm-cp-hosted-deploy-solution	
+dm-cp-hosted-knowledge-ops	
+dm-cp-hosted-provtemplates	
+dm-cp-hosted-translations	
+Job - Deploy stage feeds	
+msisdn-tolerance	
+Jasmine	
+wbc-data-collection	
+perceptum	
+radioshack-sms-system	
+wbc-speed-test	
+Zebra	
+Taccode-Monitor LIVE	
+Taccode-Monitor Stage	
+guinevere	
+pcmlibrary	
+iPhone Profile API App Id Feed Deploy To Stage	
+iPhone Profile API Build	
+iPhone Profile API Create Release	
+iPhone Profile API Deploy To Stage	
+dm-cp-hosted-pcms	
+Job - Feed Spider	
+Feed Spider (build)	
+servicemine-git	
+Bluepool	
+Export - Devicemine (contentqc)	
+Export - Devicemine (dip_csv)	
+Export - Devicemine (virginmobile)	
+Export - Devicemine (reporting)	
+Export - Devicemine (virgincsv)	
+Export - Devicemine (repository)	
+Export - Devicemine (sprint_device_detection)	
+Export - Devicemine (vodacom)	
+Export - Devicemine (nashua_mobile)	
+Export - Devicemine (cbw_selfcare)	
+Export - Devicemine (device_images)	
+Export - Devicemine (vodafone)	
+Sync Jasmine Phone Name From Hub (Stage)	
+Export - Devicemine (documentation)	
+Export - Devicemine (sprint_hubid)	
+Export - Devicemine (sprint)	
+Export - Devicemine (motive)	
+Export - Devicemine (servicemine_non_gsm)	
+Export - Devicemine (vodafone_vision)	
+Export - Devicemine (weve)	
+Export - Devicemine (solavei_all)	
+Export - Devicemine (solavei)	
+Export - Devicemine (sandisk)	
+Export - Devicemine (retail_framework)	
+Export - Devicemine (radioshack_mobile)	
+Export - Devicemine (mdm3)	
+Export - Devicemine (htc)	
+Export - Devicemine (viettel)	
+Export - Devicemine (dce)	
+Export - Devicemine (schemas)	
+Export - Devicemine (agent_framework_2_o2)	
+Export - Devicemine (agent_framework_2_8ta)	
+Export - Devicemine (agent_framework_2)	
+Export - Devicemine (Demo)	
+Control - All Devicemine exports	
+Export - Devicemine (servicemine_all)	
+Control - Devicemine - 1	
+Control - Devicemine - 2	
+Control - Devicemine - 3	
+Control - Devicemine - Daily	
+DevicemineExport	
+Export - Devicemine (radioshack_mobile)	{"name":"Export - Devicemine (radioshack_mobile)","server":"jenkins"}
+Export - Devicemine (sandisk)	{"name":"Export - Devicemine (sandisk)","server":"jenkins"}
+Export - Devicemine (radioshack_mobile)	
+Export - Devicemine (sandisk)	
+Export - Servicemine	
+Export - Sync Jasmine with Hub	
+Export - TACs	
+Sync Jasmine Phone Name From Hub	
+wbc-speed-test-schedule	
