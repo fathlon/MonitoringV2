@@ -119,6 +119,58 @@ jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
 /**
  * Redirecting
  */
+ 
+app.get('/test', function(req, res) {
+    var options = { path: '/api/json', host: 'jenkins.dev.wds.co', port: '443', method: 'get', auth: 'sgdev:ZZEtFVP7', 
+    headers: {
+      'Connection':'keep-alive'
+    }};
+    options.agent = new https.Agent(options);
+    options.agent.maxSockets  = 10;
+    
+    /*
+    https.get(options, function(res1) {
+        var contentString = '';
+        res1.on('data', function(chunk) {
+            contentString += chunk;
+        });
+        
+        res1.on('end', function() {
+            var cont = JSON.parse(contentString);
+            console.log(cont.issues);
+            res.send(200);
+        });	
+    }).on('error', function(e) {
+        console.error(e);
+        res.send(404);
+    });
+    */
+    var req = https.request(options, function(res1) {
+        console.log("statusCode: ", res1.statusCode);
+        console.log("headers: ", res1.headers);
+        var contentString = '';
+        res1.on('data', function(d) {
+            contentString += chunk;
+            console.log(contentString);
+        });
+    });
+    
+    req.on('error', function(e) {
+        console.error(e);
+        res.send(404);
+    });
+    
+    req.on('socket', function (socket) {
+        socket.setTimeout(customTimeout);  
+        socket.on('timeout', function(e) {
+            req.abort();
+        });
+    });
+    
+    req.end();
+});
+
+ 
 
 //app.get('/', routes.index);
 
