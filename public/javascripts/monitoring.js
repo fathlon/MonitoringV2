@@ -144,11 +144,11 @@ function processJobsShoutout(jobs) {
 
 	for (var i = 0, len = jobs.length; i < len; i++) {
 		var job = jobs[i];
-		if(job.status == 'red') {
+		if(job.status.startsWith('red')) {
 			messages.push(red_prefix + ', ' + job.name);
-		} else if (job.status = 'yellow') {
+		} else if (job.status.startsWith('yellow')) {
 			messages.push(yellow_prefix + ', ' + job.name);
-		} else if (job.status == 'aborted') {
+		} else if (job.status.startsWith('aborted')) {
 			messages.push(aborted_prefix + ', ' + job.name);
 		}
 	}
