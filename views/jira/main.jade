@@ -1,8 +1,16 @@
 extends ../layout
 
 block content
+  script.
+    $(function() {
+      loadJira(true);
+    });
+
   h3= title
   hr
 
   #jiraList.displayList
     include ../includes/jira_listing.jade
+
+  #loader
+    img(src='/images/ajax-loader.gif')

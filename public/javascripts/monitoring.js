@@ -6,7 +6,6 @@ $(function() {
 	checkServers();
 	loadBuilds();
     displayReminders();
-	retrieveJira();
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -57,6 +56,7 @@ $(function() {
 	
 	setInterval(function() {
 		checkServers();
+		
 	}, 600000);
 });
 
@@ -70,8 +70,13 @@ function displayReminders() {
 	});
 }
 
-function retrieveJira() {
-	$('#jiraList').load('/jiraSupport');
+function loadJira(toggleAjaxLoader) {
+	if(toggleAjaxLoader) {		
+		$('#loader').show();
+	}
+	$('#jiraList').load('/jiraSupport', function() {
+		$('#loader').hide();
+	});
 }
 
 function checkServers() {

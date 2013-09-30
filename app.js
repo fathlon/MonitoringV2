@@ -516,26 +516,24 @@ app.get('/jiraSupport', function(req, res) {
 				
 				if (issue.fields[jiraMappings['queueOrder'].id] == null) {
 					flaggedSupports.unshift(createSupportIssue(issue, true));
-				} else if (oldSupportContentMap[issue.key] != undefined) {
-					var oldIssue = oldSupportContentMap[issue.key];
-					if (oldIssue.fields.status.name != issue.fields.status.name) {
-						flaggedSupports.unshift(createSupportIssue(issue, true));
-					}
 				} else {
-					flaggedSupports.push(createSupportIssue(issue));
+					var oldIssue = oldSupportContentMap[issue.key];
+					if (oldIssue != undefined && oldIssue.fields.status.name != issue.fields.status.name) {
+						flaggedSupports.unshift(createSupportIssue(issue, true));
+					} else {
+						flaggedSupports.push(createSupportIssue(issue));	
+					}
 				}
-				//if(issue.key != 'MTN-5' && issue.key != 'SGUF-307'){
 				processedFormat[issue.key] = issue;
-				//}
 			}
 
-//			jiraDb.save(jiraMappings['dbJobList'], processedFormat, function (err) {
-//				if (err) { 
-//					callback(err); 
-//				} else {
+			jiraDb.save(jiraMappings['dbJobList'], processedFormat, function (err) {
+				if (err) { 
+					callback(err); 
+				} else {
 					callback(null, flaggedSupports);
-//				}
-//			}); 
+				}
+			}); 
 		}]
 	},
 	function(err, results) {
