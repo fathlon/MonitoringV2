@@ -5,6 +5,10 @@ $(function() {
 	checkServers();
 	loadBuilds();
     displayReminders();
+    
+    setTimeout(function() {
+        tempShout();
+    }, 3000);
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -46,8 +50,12 @@ $(function() {
 	});
     
     setInterval(function() {
+        tempShout();
+    }, 59000);
+    
+    setInterval(function() {
 		displayReminders();
-	}, 60000);
+	}, 50000);
    
     setInterval(function() {
 		loadBuilds();
@@ -55,7 +63,6 @@ $(function() {
 	
 	setInterval(function() {
 		checkServers();
-		
 	}, 600000);
 });
 
@@ -135,6 +142,12 @@ function flashErrorMessage(message) {
     });
 }
 
+function tempShout() {
+    if(messages.length > 0) {
+        shout(messages);
+    }
+}
+
 function processJobsShoutout(jobs) {
 	//Hack code alert !!
 	var processShout = messages.length == 0 ? true : false;
@@ -152,9 +165,9 @@ function processJobsShoutout(jobs) {
 		}
 	}
 	
-	if(processShout) {
-		shout(messages);
-	}
+//	if(processShout) {
+//		shout(messages);
+//	}
 }
 
 function processRemindersShoutout(reminders) {
@@ -168,16 +181,16 @@ function processRemindersShoutout(reminders) {
 		}
 	}
 	
-	if(processShout) {
-		shout(messages);
-	}
+//	if(processShout) {
+//		shout(messages);
+//	}
 }
 
 function shout(messages, bypass) {
 	var vconfig = {};
-	vconfig.speed = 150;
+	vconfig.speed = 180;
 	vconfig.wordgap = 10;
-	vconfig.pitch = 100;
+	vconfig.pitch = 60;
 	
 	if(messages instanceof Array) {
 		speak.play(messages.shift(), vconfig, function() {
