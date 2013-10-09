@@ -81,8 +81,7 @@ var serverMap = {};
 serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', host: 'localhost', port: '3001', type: 'jenkins'};
 serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', host: 'localhost', port: '3001', type: 'jenkins'};
 */
-//serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', type: 'jenkins', auth: 'sgdev:ZZEtFVP7'};
-serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.wdstechnology.com', port: '80', type: 'jenkins'};
+serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', type: 'jenkins', auth: 'sgdev:ZZEtFVP7', useHeader: true};
 serverMap['virgon'] = { name: 'virgon', path: '/api/json', host: 'virgon', port:'7070', type: 'jenkins' };
 serverMap['leonis'] = { name: 'leonis', path: '/api/json', host: 'leonis', port: '5050', type: 'jenkins' };
 
@@ -119,14 +118,33 @@ jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
 /**
  * Redirecting
  */
- 
+/*
 app.get('/test', function(req, res) {
-    var options = { path: '/api/json', host: 'jenkins.dev.wds.co', port: '443', method: 'get', auth: 'sgdev:ZZEtFVP7', 
+    var server = serverMap['jenkins'];
+	var options = { host: server.host, port: server.port, path: path, auth: server.auth };
+    
+	var protocol = http;
+	if (server.auth != undefined && server.useHeader == undefined) {
+        protocol = https;
+    } else if (server.useHeader) {
+        options.headers = { 'Authorization': 'Basic ' + new Buffer(server.auth).toString('base64') };
+    }
+    console.log(options);
+    
+    var options = { path: '/api/json', host: 'jenkins.dev.wds.co', auth: 'sgdev:ZZEtFVP7',
     headers: {
-      'Connection':'keep-alive'
+      'Authorization': 'Basic ' + new Buffer('sgdev:ZZEtFVP7').toString('base64')
     }};
-    options.agent = new https.Agent(options);
-    options.agent.maxSockets  = 10;
+    console.log(options);
+    
+    
+    var options = { path: '/rest/api/latest/filter/10059', host: 'wdsglobal.atlassian.net', auth: 'sg.development:eastc0ast',
+    headers: {
+      'Authorization': 'Basic ' + new Buffer('sg.development:eastc0ast').toString('base64')
+    }};
+    
+    //options.agent = new https.Agent(options);
+    //options.agent.maxSockets  = 10;
     
     /*
     https.get(options, function(res1) {
@@ -144,14 +162,13 @@ app.get('/test', function(req, res) {
         console.error(e);
         res.send(404);
     });
-    */
-    var req = https.request(options, function(res1) {
-        console.log("statusCode: ", res1.statusCode);
-        console.log("headers: ", res1.headers);
+    
+    var req = protocol.request(options, function(res1) {
+      //  console.log("statusCode: ", res1.statusCode);
+       // console.log("headers: ", res1.headers);
         var contentString = '';
-        res1.on('data', function(d) {
+        res1.on('data', function(chunk) {
             contentString += chunk;
-            console.log(contentString);
         });
     });
     
@@ -170,7 +187,7 @@ app.get('/test', function(req, res) {
     req.end();
 });
 
- 
+*/ 
 
 //app.get('/', routes.index);
 
@@ -554,11 +571,16 @@ app.get('/jiraSupport', function(req, res) {
 
 function getFeed(serverName, callback) {
 	var server = serverMap[serverName];
-	
+	var options = { host: server.host, port: server.port, path: server.path, auth: server.auth };
+    
 	var protocol = http;
-	if (server.auth != undefined) { protocol = https;}
+	if (server.auth != undefined && server.useHeader == undefined) {
+        protocol = https;
+    } else if (server.useHeader) {
+        options.headers = { 'Authorization': 'Basic ' + new Buffer(server.auth).toString('base64') };
+    }
 	
-	var req = protocol.request(server, function(res) {
+	var req = protocol.request(options, function(res) {
 	    var contentString = '';
 		res.on('data', function(chunk) {
 		    contentString += chunk;
@@ -626,7 +648,11 @@ function getFailedJobFeed(server, job, callback) {
 	var options = { host: server.host, port: server.port, path: path, auth: server.auth };
 
 	var protocol = http;
-	if (options.auth != undefined) { protocol = https; }
+	if (server.auth != undefined && server.useHeader == undefined) { 
+        protocol = https;
+    } else if (server.useHeader) {
+        options.headers = { 'Authorization': 'Basic ' + new Buffer(server.auth).toString('base64') };
+    }
 	
 	var req = protocol.request(options, function(res) {
 	    var contentString = '';
