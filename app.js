@@ -352,29 +352,6 @@ app.get('/clear/cache', function(req, res) {
     res.send(200);
 });
 
-app.get('/serverstatus', function(req, res) {
-	async.map(serverMapKeys, getFeed, function(err, allFeed) {
-		serverInfoList = [];
-
-		for (var i = 0, len = allFeed.length; i < len; i++) {
-			var feed = allFeed[i];
-
-			var serverUrl = 'http://' + serverMap[feed.name].host + ':' + serverMap[feed.name].port;		
-			var status = 'down';
-		
-			if(feed.jobs != failedFeedIndicator) {
-				status = 'green';				
-			}
-		
-			serverInfoList.push({ name: feed.name, url: serverUrl, status: status });
-		}
-		
-		res.render('includes/server_list', {
-	        monitoredServers: serverInfoList
-	    });
-	});
-});
-
 
 /**
  * Reminders

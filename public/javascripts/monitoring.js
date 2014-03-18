@@ -2,7 +2,6 @@ var messages = [];
 
 $(function() {
 
-	checkServers();
 	loadBuilds();
     displayReminders();
     
@@ -61,9 +60,6 @@ $(function() {
 		loadBuilds();
 	}, 300000);
 	
-	setInterval(function() {
-		checkServers();
-	}, 600000);
 });
 
 function loadBuilds() {
@@ -83,10 +79,6 @@ function loadJira(toggleAjaxLoader) {
 	$('#jiraList').load('/jiraSupport', function() {
 		$('#loader').hide();
 	});
-}
-
-function checkServers() {
-	$('#serverList').load('/serverstatus');
 }
 
 function retrieveJobs() {
