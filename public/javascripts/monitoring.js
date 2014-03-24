@@ -76,7 +76,7 @@ function loadJira(toggleAjaxLoader) {
 	if(toggleAjaxLoader) {		
 		$('#loader').show();
 	}
-	$('#jiraList').load('/jiraSupport', function() {
+	$('#jiraList').load('/support', function() {
 		$('#loader').hide();
 	});
 }
