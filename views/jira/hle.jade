@@ -1,0 +1,16 @@
+extends ../layout
+
+block content
+  script.
+    $(function() {
+      loadHLE(true);
+    });
+
+  h3= title
+  hr
+
+  #jiraList.displayList
+    include ../includes/jira_hle_listing.jade
+
+  #loader
+    img(src='/images/ajax-loader.gif')

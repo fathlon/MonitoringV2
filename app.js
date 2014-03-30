@@ -11,6 +11,8 @@ var express = require('express'),
 	async = require('async'),
     moment = require('moment');	
 
+require('twix');
+
 //require('./redirectConsole.js');
 
 /**
@@ -114,8 +116,8 @@ jiraMappings['sgDev'] = 'sg.development';
 jiraMappings['dbJobList'] = 'jiraSupportList';
 jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'sg.development:eastc0ast' };
 jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
-jiraMappings['sgSupport'] = '/rest/api/latest/filter/10059';
-jiraMappings['sgHLE'] = '/rest/api/latest/filter/12432';
+jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/10059' };
+jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/12432', expand: 'changelog', startHour: 15 };
 jiraMappings['deadline'] = { id: 'customfield_10048', name: 'Customer Deadline'};
 
 
@@ -370,90 +372,16 @@ app.get('/reminder/displayReminders', function(req, res) {
  */
 
 app.get('/jira', function(req, res) {
-	res.render('jira/main', {
+	res.render('jira/support', {
         title: 'JIRA Support List',
 		jiraList: []
     });
 });
 
-app.get('/HLE', function(req, res) {
-	async.waterfall([
-		function(callback) {
-			//getHLEUrl
-			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgHLE'], auth: jiraMappings['server'].auth };
-			var req1 = https.request(options, function(res1) {
-				var contentString = '';
-				res1.on('data', function(chunk) {
-					contentString += chunk;
-				});
-
-				res1.on('end', function() {
-					var cont = JSON.parse(contentString);
-					callback(null, cont.searchUrl);
-				});	
-				
-			});
-			
-			req1.on('socket', function (socket) {
-				socket.setTimeout(customTimeout);  
-				socket.on('timeout', function() {
-					req1.abort();
-				});
-			});
-			
-			req1.on('error', function(e) {
-				console.log('Error retrieving JIRA HLE filter : ' + e.message);
-				callback('Unable to retrieve JIRA HLE filter.');
-			});
-			
-			req1.end();
-		},
-		function(hleUrl, callback) {
-			//getHLEContent
-			var supportDashUrl = url.parse(hleUrl + '&expand=changelog');
-			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings['server'].auth };
-	
-			https.get(options, function(res1) {
-				var contentString = '';
-				res1.on('data', function(chunk) {
-					contentString += chunk;
-				});
-		
-				res1.on('end', function() {
-					var cont = JSON.parse(contentString);
-					callback(null, cont.issues);
-				});
-				
-				req1.on('socket', function (socket) {
-					socket.setTimeout(customTimeout);  
-					socket.on('timeout', function() {
-						req1.abort();
-					});
-				});
-				
-				req1.on('error', function(e) {
-					console.log('Error retrieving JIRA HLE URL : ' + e.message);
-					callback('Unable to retrieve JIRA HLE URL.');
-				});
-
-				req1.end();
-			});
-		},
-		function(issues, callback) {
-			//process HLEs
-			var hleList = [];
-			for (var i = 0, len = issues.length; i < len; i++) {
-				var issue = issues[i];
-				hleList.push(createHLEIssue(issue));
-			}
-		}
-	]);
-});
-
 app.get('/support', function(req, res) {
 	async.auto({
 		getSupportUrl: function(callback) {	
-			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgSupport'], auth: jiraMappings['server'].auth };
+			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgSupport'].path, auth: jiraMappings['server'].auth };
 			var req1 = https.request(options, function(res1) {
 				var contentString = '';
 				res1.on('data', function(chunk) {
@@ -485,7 +413,7 @@ app.get('/support', function(req, res) {
 			var supportDashUrl = url.parse(results.getSupportUrl);
 			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings['server'].auth };
 		
-			https.get(options, function(res1) {
+			var req1 = https.request(options, function(res1) {
 				var contentString = '';
 				res1.on('data', function(chunk) {
 					contentString += chunk;
@@ -495,21 +423,21 @@ app.get('/support', function(req, res) {
 					var cont = JSON.parse(contentString);
 					callback(null, cont.issues);
 				});	
-				
-				req1.on('socket', function (socket) {
-					socket.setTimeout(customTimeout);  
-					socket.on('timeout', function() {
-						req1.abort();
-					});
-				});
-				
-				req1.on('error', function(e) {
-					console.log('Error retrieving JIRA support URL : ' + e.message);
-					callback(null, '');
-				});
-				
-				req1.end();
 			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA support URL : ' + e.message);
+				callback(null, '');
+			});
+			
+			req1.end();
 		}],
 		getDBSupportList: function(callback) {
 			jiraDb.get(jiraMappings['dbJobList'], function(err, doc, key) {
@@ -558,6 +486,96 @@ app.get('/support', function(req, res) {
 	});
 });
 
+app.get('/jira/h', function(req, res) {
+	res.render('jira/hle', {
+        title: 'JIRA HLE List',
+		jiraList: []
+    });
+});
+
+app.get('/jira/hle', function(req, res) {
+	async.waterfall([
+		function(callback) {
+			//getHLEUrl
+			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgHLE'].path, auth: jiraMappings['server'].auth };
+			var req1 = https.request(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+
+				res1.on('end', function() {
+					var cont = JSON.parse(contentString);
+					callback(null, cont.searchUrl);
+				});	
+				
+			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA HLE filter : ' + e.message);
+				callback('Unable to retrieve JIRA HLE filter.');
+			});
+			
+			req1.end();
+		},
+		function(hleUrl, callback) {
+			//getHLEContent
+			var supportDashUrl = url.parse(hleUrl + '&expand=' + jiraMappings['sgHLE'].expand);
+			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings['server'].auth };
+	
+			var req1 = https.request(options, function(res1) {
+				var contentString = '';
+				res1.on('data', function(chunk) {
+					contentString += chunk;
+				});
+		
+				res1.on('end', function() {
+					var cont = JSON.parse(contentString);
+					callback(null, cont.issues);
+				});
+			});
+			
+			req1.on('socket', function (socket) {
+				socket.setTimeout(customTimeout);  
+				socket.on('timeout', function() {
+					req1.abort();
+				});
+			});
+			
+			req1.on('error', function(e) {
+				console.log('Error retrieving JIRA HLE URL : ' + e.message);
+				callback('Unable to retrieve JIRA HLE URL.');
+			});
+
+			req1.end();
+		},
+		function(issues, callback) {
+			//process HLEs
+			var hleList = [];
+			for (var i = 0, len = issues.length; i < len; i++) {
+				var issue = issues[i];
+				hleList.push(createHLEIssue(issue));
+			}
+			callback(null, hleList);
+		}
+	],
+	function(err, results) {
+		if(err) { 
+			res.send(500, { error: err }); 
+		} else {
+			res.render('includes/jira_hle_listing', {
+				jiraList: results
+			});
+		} 
+	});
+});
 
 /**
  * Util Functions
@@ -725,7 +743,34 @@ function createHLEIssue(issue) {
 		for (var j = 0, len1 = history.items.length; j < len1; j++) {
 			var item = history.items[j];
 			if(item.to == jiraMappings['sgDev']) {
-				var assignedDate = history.created; //2014-03-15T01:00:30.110+0000
+				var duration = 0,
+				createDate = moment(history.created),
+				createDateFlat = moment(createDate).hours(0).minutes(0).seconds(0).milliseconds(0),
+				slaStartTime = moment(createDateFlat).hours(jiraMappings['sgHLE'].startHour),
+				iterator = createDate.twix(moment()).iterate('days');
+
+				var value = iterator.next();
+				while(value) {
+					if(value.day() != 0 && value.day() != 6) {
+						duration += 1;
+					}
+					value = iterator.next();
+				} 
+				
+				if(createDate.isAfter(slaStartTime)) {
+					duration -= 1;
+				}
+				
+				if (duration <= 1) {
+					hle.color = 'green';
+				} else if (duration <= 2) {
+					hle.color = 'orange';
+				} else if (duration >= 3) {
+					hle.color = 'red';
+				}
+
+				hle.assignedDate = createDate.format('DD-MM-YYYY h:mmA');
+				hle.duration = duration;				
 			}
 		}
 	}

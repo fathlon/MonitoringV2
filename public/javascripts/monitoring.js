@@ -81,6 +81,15 @@ function loadJira(toggleAjaxLoader) {
 	});
 }
 
+function loadHLE(toggleAjaxLoader) {
+	if(toggleAjaxLoader) {		
+		$('#loader').show();
+	}
+	$('#jiraList').load('/jira/hle', function() {
+		$('#loader').hide();
+	});
+}
+
 function retrieveJobs() {
 	if ($('#server').val() != ''){
 		$('#addJobHolder').load('/get/' + $('#server').val());		

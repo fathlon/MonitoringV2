@@ -1,0 +1,8 @@
+each jiraItem in jiraList
+  li
+    strong
+      a(href=jiraItem.url, target='_blank', class=jiraItem.color)
+        | [DAY #{jiraItem.duration} (#{jiraItem.assignedDate})] [#{jiraItem.status}] #{jiraItem.id} - #{jiraItem.name}
+
+        if jiraItem.newSupport
+          span.blinkblink.red  (NEW)
