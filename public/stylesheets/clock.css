@@ -13,34 +13,20 @@
 }
 
 .clock {
-  width: 310px;
+  font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
+  font-size: 3em;
+  text-align: center;
+  text-shadow: 0 0 5px #00c6ff;
   margin: 0 auto;
   padding: 10px;
   color: #fff;
-  float: right;
+  float: left;
+  width: 100%;
 }
 
-#Date {
-  font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
-  font-size: 52px;
-  text-align: center;
-  text-shadow: 0 0 5px #00c6ff;
-  margin-bottom: 20px;
-}
-
-.clock ul {
-  margin: 0 auto;
-  padding: 0px;
-  list-style: none;
-  text-align: center;
-}
-
-.clock ul li {
-  display: inline;
-  font-size: 48px;
-  text-align: center;
-  font-family: 'BebasNeueRegular', Arial, Helvetica, sans-serif;
-  text-shadow: 0 0 5px #00c6ff;
+#Date, #dash, #time {
+  float: left;
+  margin-right: 0.5em;
 }
 
 #point {

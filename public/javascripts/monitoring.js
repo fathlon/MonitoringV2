@@ -2,7 +2,6 @@ var messages = [];
 
 $(function() {
 
-	loadBuilds();
     displayReminders();
     
     setTimeout(function() {
@@ -55,10 +54,6 @@ $(function() {
     setInterval(function() {
 		displayReminders();
 	}, 50000);
-   
-    setInterval(function() {
-		loadBuilds();
-	}, 300000);
 	
 });
 
@@ -72,21 +67,21 @@ function displayReminders() {
 	});
 }
 
-function loadJira(toggleAjaxLoader) {
-	if(toggleAjaxLoader) {		
-		$('#loader').show();
+function loadJira(show) {
+	if(show) {		
+		toggleAjaxLoader('loader', true);
 	}
-	$('#jiraList').load('/support', function() {
-		$('#loader').hide();
+	$('#jiraList').load('/jira/support/listing', function() {
+		toggleAjaxLoader('loader', false);
 	});
 }
 
-function loadHLE(toggleAjaxLoader) {
-	if(toggleAjaxLoader) {		
-		$('#loader').show();
+function loadHLE(show) {
+	if(show) {		
+		toggleAjaxLoader('loader', true);
 	}
-	$('#jiraList').load('/jira/hle', function() {
-		$('#loader').hide();
+	$('#jiraList').load('/jira/hle/listing', function() {
+		toggleAjaxLoader('loader', false);
 	});
 }
 
@@ -203,6 +198,14 @@ function shout(messages, bypass) {
 		});
 	} else {
 		speak.play(messages, vconfig);
+	}
+}
+
+function toggleAjaxLoader(loader, flag) {
+	if(flag) {
+		$('#' + loader + '').show();
+	} else {
+		$('#' + loader + '').hide();
 	}
 }
 

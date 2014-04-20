@@ -139,7 +139,8 @@ app.get('/index', function(req, res) {
 	res.render('index', {
         title: 'Monitoring Status',
         monitoredServers: [], //Clientside retrieval by async
-        failureJobs: []	//Clientside retrieval by async
+        failureJobs: [], //Clientside retrieval by async
+		jiraList: []
     });
 });
 
@@ -371,14 +372,14 @@ app.get('/reminder/displayReminders', function(req, res) {
  * JIRA
  */
 
-app.get('/jira', function(req, res) {
+app.get('/jira/support', function(req, res) {
 	res.render('jira/support', {
         title: 'JIRA Support List',
 		jiraList: []
     });
 });
 
-app.get('/support', function(req, res) {
+app.get('/jira/support/listing', function(req, res) {
 	async.auto({
 		getSupportUrl: function(callback) {	
 			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgSupport'].path, auth: jiraMappings['server'].auth };
@@ -486,14 +487,14 @@ app.get('/support', function(req, res) {
 	});
 });
 
-app.get('/jira/h', function(req, res) {
+app.get('/jira/hle', function(req, res) {
 	res.render('jira/hle', {
         title: 'JIRA HLE List',
 		jiraList: []
     });
 });
 
-app.get('/jira/hle', function(req, res) {
+app.get('/jira/hle/listing', function(req, res) {
 	async.waterfall([
 		function(callback) {
 			//getHLEUrl
