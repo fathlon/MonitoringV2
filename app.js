@@ -114,10 +114,13 @@ reminderComparison['Daily'] = '';
 var jiraMappings = {}; //Fields API - https://wdsglobal.atlassian.net/rest/api/2/field
 jiraMappings['sgDev'] = 'sg.development';
 jiraMappings['dbJobList'] = 'jiraSupportList';
-jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'sg.development:eastc0ast' };
+//jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'sg.development:eastc0ast' };
+jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'ronghuan.chen:password' };
 jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
-jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/10059' };
-jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/12432', expand: 'changelog', startHour: 15 };
+//jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/10059' };
+jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/16540' };
+//jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/12432', expand: 'changelog', startHour: 15 };
+jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/16551', expand: 'changelog', startHour: 15 };
 jiraMappings['deadline'] = { id: 'customfield_10048', name: 'Customer Deadline'};
 
 
@@ -728,6 +731,9 @@ function createSupportIssue(issue, newSupport) {
 	support.status = issue.fields.status.name;
 	support.url = 'https://' + jiraMappings['server'].host + '/browse/' + issue.key;
 	support.newSupport = newSupport;
+	if (issue.fields.assignee) {
+		support.assignee = issue.fields.assignee.displayName;
+	}
 	return support;
 }
 

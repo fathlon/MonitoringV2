@@ -4,6 +4,8 @@
 each jiraItem in jiraList
   li
     a(href=jiraItem.url, target='_blank')
+      if jiraItem.assignee
+        | #{jiraItem.assignee} ==> 
       | [#{jiraItem.status}] #{jiraItem.id} - #{jiraItem.name}
 
       if jiraItem.newSupport
