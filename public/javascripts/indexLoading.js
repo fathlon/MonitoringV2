@@ -1,7 +1,7 @@
 $(function() {
 
 	loadBuilds();
-	loadHLE(false);
+	loadLIVEIssues(false);
 
 	$('#addForm').submit(function(event) {
 		/* Prevent form from submitting normally */
@@ -47,7 +47,7 @@ $(function() {
 	}, 300000);
 	
 	setInterval(function() {
-		loadHLE(false);
+		loadLIVEIssues(false);
 	}, 1800000);
 	
 });

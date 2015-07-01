@@ -76,11 +76,11 @@ function loadJira(show) {
 	});
 }
 
-function loadHLE(show) {
+function loadLIVEIssues(show) {
 	if(show) {		
 		toggleAjaxLoader('loader', true);
 	}
-	$('#jiraList').load('/jira/hle/listing', function() {
+	$('#jiraList').load('/jira/live/listing', function() {
 		toggleAjaxLoader('loader', false);
 	});
 }

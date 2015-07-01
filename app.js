@@ -84,8 +84,6 @@ serverMap['jenkins'] = {name: 'jenkins', path: '/server/jenkins', host: 'localho
 serverMap['virgon'] = {name: 'virgon', path: '/server/virgon', host: 'localhost', port: '3001', type: 'jenkins'};
 */
 serverMap['jenkins'] = { name: 'jenkins', path: '/api/json', host: 'jenkins.dev.wds.co', type: 'jenkins', auth: 'sgdev:ZZEtFVP7', useHeader: true};
-serverMap['virgon'] = { name: 'virgon', path: '/api/json', host: 'virgon', port:'7070', type: 'jenkins' };
-serverMap['leonis'] = { name: 'leonis', path: '/api/json', host: 'leonis', port: '5050', type: 'jenkins' };
 
 var serverMapKeys = Object.keys(serverMap);
 var serverInfoList = [];
@@ -112,15 +110,12 @@ reminderComparison['Daily'] = '';
  */
 
 var jiraMappings = {}; //Fields API - https://wdsglobal.atlassian.net/rest/api/2/field
-jiraMappings['sgDev'] = 'sg.development';
 jiraMappings['dbJobList'] = 'jiraSupportList';
-//jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'sg.development:eastc0ast' };
-jiraMappings['server'] = { host: 'wdsglobal.atlassian.net', auth: 'ronghuan.chen:password' };
+jiraMappings['server'] = { host: 'jira.wds.co', auth: 'ronghuan.chen:password' };
 jiraMappings['queueOrder'] = { id: 'customfield_10035', name: 'Queue Order' };
-//jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/10059' };
 jiraMappings['sgSupport'] = { path: '/rest/api/latest/filter/16540' };
-//jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/12432', expand: 'changelog', startHour: 15 };
-jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/16551', expand: 'changelog', startHour: 15 };
+//jiraMappings['sgHLE'] = { path: '/rest/api/latest/filter/16551', expand: 'changelog', startHour: 15 };
+jiraMappings['sgLiveIssues'] = { path: '/rest/api/latest/filter/19434', startHour: 15 };
 jiraMappings['deadline'] = { id: 'customfield_10048', name: 'Customer Deadline'};
 
 
@@ -490,18 +485,18 @@ app.get('/jira/support/listing', function(req, res) {
 	});
 });
 
-app.get('/jira/hle', function(req, res) {
-	res.render('jira/hle', {
-        title: 'JIRA HLE List',
+app.get('/jira/live', function(req, res) {
+	res.render('jira/live', {
+        title: 'JIRA LIVE Issues List',
 		jiraList: []
     });
 });
 
-app.get('/jira/hle/listing', function(req, res) {
+app.get('/jira/live/listing', function(req, res) {
 	async.waterfall([
 		function(callback) {
-			//getHLEUrl
-			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgHLE'].path, auth: jiraMappings['server'].auth };
+			//get LIVE issues url
+			var options = { host: jiraMappings['server'].host, path: jiraMappings['sgLiveIssues'].path, auth: jiraMappings['server'].auth };
 			var req1 = https.request(options, function(res1) {
 				var contentString = '';
 				res1.on('data', function(chunk) {
@@ -523,15 +518,15 @@ app.get('/jira/hle/listing', function(req, res) {
 			});
 			
 			req1.on('error', function(e) {
-				console.log('Error retrieving JIRA HLE filter : ' + e.message);
-				callback('Unable to retrieve JIRA HLE filter.');
+				console.log('Error retrieving JIRA LIVE issues filter : ' + e.message);
+				callback('Unable to retrieve JIRA LIVE issues filter.');
 			});
 			
 			req1.end();
 		},
-		function(hleUrl, callback) {
-			//getHLEContent
-			var supportDashUrl = url.parse(hleUrl + '&expand=' + jiraMappings['sgHLE'].expand);
+		function(liveUrl, callback) {
+			//get LIVE issues content
+			var supportDashUrl = url.parse(liveUrl);
 			var options = { hostname: supportDashUrl.hostname, path: supportDashUrl.path, auth: jiraMappings['server'].auth };
 	
 			var req1 = https.request(options, function(res1) {
@@ -554,27 +549,27 @@ app.get('/jira/hle/listing', function(req, res) {
 			});
 			
 			req1.on('error', function(e) {
-				console.log('Error retrieving JIRA HLE URL : ' + e.message);
-				callback('Unable to retrieve JIRA HLE URL.');
+				console.log('Error retrieving JIRA LIVE issues filter : ' + e.message);
+				callback('Unable to retrieve JIRA LIVE issues filter.');
 			});
 
 			req1.end();
 		},
 		function(issues, callback) {
-			//process HLEs
-			var hleList = [];
+			//process LIVE issues
+			var issuesList = [];
 			for (var i = 0, len = issues.length; i < len; i++) {
 				var issue = issues[i];
-				hleList.push(createHLEIssue(issue));
+				issuesList.push(createLIVEIssue(issue));
 			}
-			callback(null, hleList);
+			callback(null, issuesList);
 		}
 	],
 	function(err, results) {
 		if(err) { 
 			res.send(500, { error: err }); 
 		} else {
-			res.render('includes/jira_hle_listing', {
+			res.render('includes/jira_live_listing', {
 				jiraList: results
 			});
 		} 
@@ -737,50 +732,42 @@ function createSupportIssue(issue, newSupport) {
 	return support;
 }
 
-function createHLEIssue(issue) {
-	var hle = {};
-	hle.id = issue.key;
-	hle.name = issue.fields.summary;
-	hle.status = issue.fields.status.name;
-	hle.url = 'https://' + jiraMappings['server'].host + '/browse/' + issue.key;
+function createLIVEIssue(issue) {
+	var liveIssue = {};
+	liveIssue.id = issue.key;
+	liveIssue.name = issue.fields.summary;
+	liveIssue.status = issue.fields.status.name;
+	liveIssue.url = 'https://' + jiraMappings['server'].host + '/browse/' + issue.key;
 	
-	var histories = issue.changelog.histories;
-	for (var i = 0, len = histories.length; i < len; i++) {
-		var history = histories[i];
-		for (var j = 0, len1 = history.items.length; j < len1; j++) {
-			var item = history.items[j];
-			if(item.to == jiraMappings['sgDev']) {
-				var duration = 0,
-				createDate = moment(history.created),
-				createDateFlat = moment(createDate).hours(0).minutes(0).seconds(0).milliseconds(0),
-				slaStartTime = moment(createDateFlat).hours(jiraMappings['sgHLE'].startHour),
-				iterator = createDate.twix(moment()).iterate('days');
+	var duration = 0,
+	createDate = moment(issue.fields.created),
+	createDateFlat = moment(createDate).hours(0).minutes(0).seconds(0).milliseconds(0),
+	slaStartTime = moment(createDateFlat).hours(jiraMappings['sgLiveIssues'].startHour),
+	iterator = createDate.twix(moment()).iterate('days');
 
-				var value = iterator.next();
-				while(value) {
-					if(value.day() != 0 && value.day() != 6) {
-						duration += 1;
-					}
-					value = iterator.next();
-				} 
-				
-				if(createDate.isAfter(slaStartTime)) {
-					duration -= 1;
-				}
-				
-				if (duration <= 1) {
-					hle.color = 'green';
-				} else if (duration <= 2) {
-					hle.color = 'orange';
-				} else if (duration >= 3) {
-					hle.color = 'red';
-				}
-
-				hle.assignedDate = createDate.format('DD-MM-YYYY h:mmA');
-				hle.duration = duration;				
-			}
+	var value = iterator.next();
+	while(value) {
+		if(value.day() != 0 && value.day() != 6) {
+			duration += 1;
 		}
+		value = iterator.next();
+	} 
+	
+	if(createDate.isAfter(slaStartTime)) {
+		duration -= 1;
 	}
 	
-	return hle;
+	if (duration <= 1) {
+		liveIssue.color = 'green';
+	} else if (duration <= 2) {
+		liveIssue.color = 'orange';
+	} else if (duration >= 3) {
+		liveIssue.color = 'red';
+	}
+
+	liveIssue.assignedDate = createDate.format('DD-MM-YYYY h:mmA');
+	liveIssue.duration = duration;				
+
+	
+	return liveIssue;
 }

@@ -3,12 +3,12 @@ extends ../layout
 block content
   script.
     $(function() {
-      loadHLE(true);
+      loadLIVEIssues(true);
     });
 
   h3= title
   hr
 
   #jiraList.displayList
-    include ../includes/jira_hle_listing.jade
+    include ../includes/jira_live_listing.jade
 
